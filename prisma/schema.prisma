@@ -1,0 +1,271 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Role is a String ("ADMIN" | "STAFF") rather than a native enum because
+// SQLite (our local dev database) doesn't support Prisma enums. Postgres
+// migration can promote this to a real enum later.
+model User {
+  id             String          @id @default(cuid())
+  name           String
+  email          String          @unique
+  passwordHash   String
+  role           String          @default("STAFF")
+  active         Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  stockMovements StockMovement[]
+  salesOrders    SalesOrder[]
+  purchaseOrders PurchaseOrder[]
+  payments       Payment[]
+  auditLogs      AuditLog[]
+}
+
+// action is a String ("CREATE" | "UPDATE" | "DELETE" | ...) for the same
+// SQLite-enum-support reason as User.role above.
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  userEmail  String
+  action     String
+  entityType String
+  entityId   String?
+  summary    String
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  products Product[]
+}
+
+model Warehouse {
+  id             String          @id @default(cuid())
+  name           String          @unique
+  location       String?
+  stockItems     StockItem[]
+  stockMovements StockMovement[]
+  salesOrders    SalesOrder[]
+  purchaseOrders PurchaseOrder[]
+  createdAt      DateTime        @default(now())
+}
+
+model Product {
+  id             String          @id @default(cuid())
+  sku            String          @unique
+  name           String
+  categoryId     String?
+  category       Category?       @relation(fields: [categoryId], references: [id])
+  unit           String          @default("unit")
+  costPrice      Float           @default(0)
+  salePrice      Float           @default(0)
+  reorderLevel   Float           @default(0)
+  taxRate        Float           @default(0)
+  active         Boolean         @default(true)
+  stockItems     StockItem[]
+  stockMovements StockMovement[]
+  salesOrderLines SalesOrderLine[]
+  purchaseOrderLines PurchaseOrderLine[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model StockItem {
+  id          String    @id @default(cuid())
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id])
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+  quantity    Float     @default(0)
+
+  @@unique([productId, warehouseId])
+}
+
+// type is a String ("IN" | "OUT" | "ADJUST" | "TRANSFER") for the same
+// SQLite-enum-support reason as User.role above.
+model StockMovement {
+  id          String    @id @default(cuid())
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id])
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+  type        String
+  quantity    Float
+  reference   String?
+  note        String?
+  createdById String?
+  createdBy   User?     @relation(fields: [createdById], references: [id])
+  createdAt   DateTime  @default(now())
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  address   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  salesOrders SalesOrder[]
+  invoices    Invoice[]
+}
+
+// status is a String ("DRAFT" | "CONFIRMED" | "INVOICED" | "CANCELLED") for
+// the same SQLite-enum-support reason as User.role above.
+model SalesOrder {
+  id          String   @id @default(cuid())
+  orderNumber String   @unique
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id])
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+  status      String   @default("DRAFT")
+  orderDate   DateTime @default(now())
+  notes       String?
+  createdById String?
+  createdBy   User?    @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  lines   SalesOrderLine[]
+  invoice Invoice?
+}
+
+model SalesOrderLine {
+  id           String     @id @default(cuid())
+  salesOrderId String
+  salesOrder   SalesOrder @relation(fields: [salesOrderId], references: [id], onDelete: Cascade)
+  productId    String
+  product      Product    @relation(fields: [productId], references: [id])
+  quantity     Float
+  unitPrice    Float
+  taxRate      Float      @default(0)
+}
+
+// status is a String ("UNPAID" | "PAID") for the same SQLite-enum-support
+// reason as User.role above.
+model Invoice {
+  id            String     @id @default(cuid())
+  invoiceNumber String     @unique
+  salesOrderId  String     @unique
+  salesOrder    SalesOrder @relation(fields: [salesOrderId], references: [id])
+  customerId    String
+  customer      Customer   @relation(fields: [customerId], references: [id])
+  totalAmount   Float
+  taxAmount     Float      @default(0)
+  paidAmount    Float      @default(0)
+  status        String     @default("UNPAID")
+  issuedAt      DateTime   @default(now())
+  dueDate       DateTime?
+  createdAt     DateTime   @default(now())
+
+  payments Payment[]
+}
+
+model Supplier {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  address   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  purchaseOrders PurchaseOrder[]
+}
+
+// status is a String ("DRAFT" | "SENT" | "RECEIVED" | "CANCELLED") for the
+// same SQLite-enum-support reason as User.role above.
+model PurchaseOrder {
+  id          String    @id @default(cuid())
+  poNumber    String    @unique
+  supplierId  String
+  supplier    Supplier  @relation(fields: [supplierId], references: [id])
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+  status      String    @default("DRAFT")
+  paidAmount  Float     @default(0)
+  orderDate   DateTime  @default(now())
+  notes       String?
+  createdById String?
+  createdBy   User?     @relation(fields: [createdById], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  lines    PurchaseOrderLine[]
+  payments Payment[]
+}
+
+model PurchaseOrderLine {
+  id              String        @id @default(cuid())
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  productId       String
+  product         Product       @relation(fields: [productId], references: [id])
+  quantity        Float
+  unitCost        Float
+  taxRate         Float         @default(0)
+}
+
+// type is a String ("ASSET" | "LIABILITY" | "EQUITY" | "REVENUE" | "EXPENSE")
+// for the same SQLite-enum-support reason as User.role above.
+model Account {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  name      String
+  type      String
+  createdAt DateTime @default(now())
+
+  journalLines JournalLine[]
+}
+
+model JournalEntry {
+  id          String   @id @default(cuid())
+  entryNumber String   @unique
+  date        DateTime @default(now())
+  memo        String?
+  reference   String?
+  createdAt   DateTime @default(now())
+
+  lines JournalLine[]
+}
+
+model JournalLine {
+  id             String       @id @default(cuid())
+  journalEntryId String
+  journalEntry   JournalEntry @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+  accountId      String
+  account        Account      @relation(fields: [accountId], references: [id])
+  debit          Float        @default(0)
+  credit         Float        @default(0)
+}
+
+// type is a String ("RECEIVED" | "PAID") for the same SQLite-enum-support
+// reason as User.role above. RECEIVED = customer payment against an
+// Invoice (AR); PAID = payment to a supplier against a PurchaseOrder (AP).
+model Payment {
+  id              String         @id @default(cuid())
+  paymentNumber   String         @unique
+  type            String
+  amount          Float
+  method          String?
+  date            DateTime       @default(now())
+  invoiceId       String?
+  invoice         Invoice?       @relation(fields: [invoiceId], references: [id])
+  purchaseOrderId String?
+  purchaseOrder   PurchaseOrder? @relation(fields: [purchaseOrderId], references: [id])
+  createdById     String?
+  createdBy       User?          @relation(fields: [createdById], references: [id])
+  createdAt       DateTime       @default(now())
+}
