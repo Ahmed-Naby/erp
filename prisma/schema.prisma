@@ -3,13 +3,14 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
-// Role is a String ("ADMIN" | "STAFF") rather than a native enum because
-// SQLite (our local dev database) doesn't support Prisma enums. Postgres
-// migration can promote this to a real enum later.
+// Role is a String ("ADMIN" | "STAFF") rather than a native enum for
+// historical reasons (originally SQLite, which doesn't support Prisma
+// enums). Could be promoted to a real Postgres enum later.
 model User {
   id             String          @id @default(cuid())
   name           String
