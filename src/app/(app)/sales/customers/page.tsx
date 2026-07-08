@@ -7,15 +7,27 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { CustomerForm } from "@/components/sales/customer-form"
+import { Pagination } from "@/components/shared/pagination"
 import { prisma } from "@/lib/prisma"
 import { getTranslations } from "@/lib/i18n/server"
+import { pageArgs, pageCount, parsePage } from "@/lib/pagination"
 
-export default async function CustomersPage() {
+export default async function CustomersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>
+}) {
+  const { page: pageParam } = await searchParams
+  const page = parsePage(pageParam)
   const { t } = await getTranslations()
-  const customers = await prisma.customer.findMany({
-    include: { _count: { select: { salesOrders: true } } },
-    orderBy: { name: "asc" },
-  })
+  const [total, customers] = await Promise.all([
+    prisma.customer.count(),
+    prisma.customer.findMany({
+      include: { _count: { select: { salesOrders: true } } },
+      orderBy: { name: "asc" },
+      ...pageArgs(page),
+    }),
+  ])
 
   return (
     <div className="space-y-6">
@@ -67,6 +79,7 @@ export default async function CustomersPage() {
           )}
         </TableBody>
       </Table>
+      <Pagination page={page} totalPages={pageCount(total)} />
     </div>
   )
 }

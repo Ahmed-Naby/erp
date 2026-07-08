@@ -65,6 +65,9 @@ export const en: Messages = {
   "common.nothingHere": "Nothing here",
   "common.you": "You",
   "common.somethingWrong": "Something went wrong",
+  "pagination.pageOf": "Page {page} of {total}",
+  "pagination.previous": "Previous",
+  "pagination.next": "Next",
 
   // Auth
   "auth.signIn": "Sign in",

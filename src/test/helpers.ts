@@ -24,9 +24,15 @@ export async function resetDb() {
   await prisma.auditLog.deleteMany()
   await prisma.user.deleteMany()
   await prisma.account.deleteMany()
+  await prisma.counter.deleteMany()
 
   for (const account of DEFAULT_ACCOUNTS) {
     await prisma.account.create({ data: account })
+  }
+
+  // Document-number counters start fresh for each test file.
+  for (const key of ["salesOrder", "invoice", "purchaseOrder", "journalEntry", "payment"]) {
+    await prisma.counter.create({ data: { key, value: 0 } })
   }
 }
 

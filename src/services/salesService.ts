@@ -1,19 +1,15 @@
 import { prisma } from "@/lib/prisma"
 import { adjustStock } from "@/services/stockService"
 import { postInvoiceEntries } from "@/services/journalService"
+import { nextSequence } from "@/services/counter"
 import { computeTotals } from "@/lib/money"
 import type { SalesOrderInput } from "@/lib/validations/sales"
-
-async function nextNumber(prefix: string, count: () => Promise<number>) {
-  const n = (await count()) + 1
-  return `${prefix}-${String(n).padStart(6, "0")}`
-}
 
 export async function createSalesOrder(
   input: SalesOrderInput,
   userId?: string
 ) {
-  const orderNumber = await nextNumber("SO", () => prisma.salesOrder.count())
+  const orderNumber = await nextSequence("salesOrder", "SO")
 
   return prisma.salesOrder.create({
     data: {
@@ -112,9 +108,8 @@ export async function generateInvoice(salesOrderId: string) {
     (sum, line) => sum + line.quantity * line.product.costPrice,
     0
   )
-  const invoiceNumber = await nextNumber("INV", () => prisma.invoice.count())
-
   return prisma.$transaction(async (tx) => {
+    const invoiceNumber = await nextSequence("invoice", "INV", tx)
     const invoice = await tx.invoice.create({
       data: {
         invoiceNumber,

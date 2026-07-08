@@ -9,18 +9,30 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Pagination } from "@/components/shared/pagination"
 import { prisma } from "@/lib/prisma"
 import { getTranslations } from "@/lib/i18n/server"
+import { pageArgs, pageCount, parsePage } from "@/lib/pagination"
 
-export default async function PaymentsPage() {
+export default async function PaymentsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>
+}) {
+  const { page: pageParam } = await searchParams
+  const page = parsePage(pageParam)
   const { t } = await getTranslations()
-  const payments = await prisma.payment.findMany({
-    include: {
-      invoice: { include: { customer: true } },
-      purchaseOrder: { include: { supplier: true } },
-    },
-    orderBy: { date: "desc" },
-  })
+  const [total, payments] = await Promise.all([
+    prisma.payment.count(),
+    prisma.payment.findMany({
+      include: {
+        invoice: { include: { customer: true } },
+        purchaseOrder: { include: { supplier: true } },
+      },
+      orderBy: { date: "desc" },
+      ...pageArgs(page),
+    }),
+  ])
 
   return (
     <div className="space-y-6">
@@ -77,6 +89,7 @@ export default async function PaymentsPage() {
           )}
         </TableBody>
       </Table>
+      <Pagination page={page} totalPages={pageCount(total)} />
     </div>
   )
 }

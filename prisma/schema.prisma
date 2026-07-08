@@ -273,6 +273,15 @@ model Payment {
   createdAt       DateTime       @default(now())
 }
 
+// Atomic sequence counters for human-readable document numbers (SO/PO/INV/…).
+// Incremented via a single UPDATE ... value = value + 1 RETURNING value, which
+// is concurrency-safe (row lock) — unlike the old count()+1 which could hand
+// two concurrent requests the same number.
+model Counter {
+  key   String @id
+  value Int    @default(0)
+}
+
 model Department {
   id        String     @id @default(cuid())
   name      String     @unique

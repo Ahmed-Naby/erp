@@ -1,19 +1,15 @@
 import { prisma } from "@/lib/prisma"
 import { adjustStock } from "@/services/stockService"
 import { postPurchaseReceiptEntries } from "@/services/journalService"
+import { nextSequence } from "@/services/counter"
 import { computeTotals } from "@/lib/money"
 import type { PurchaseOrderInput } from "@/lib/validations/purchasing"
-
-async function nextNumber(prefix: string, count: () => Promise<number>) {
-  const n = (await count()) + 1
-  return `${prefix}-${String(n).padStart(6, "0")}`
-}
 
 export async function createPurchaseOrder(
   input: PurchaseOrderInput,
   userId?: string
 ) {
-  const poNumber = await nextNumber("PO", () => prisma.purchaseOrder.count())
+  const poNumber = await nextSequence("purchaseOrder", "PO")
 
   return prisma.purchaseOrder.create({
     data: {

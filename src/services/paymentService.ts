@@ -1,11 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { postPaymentEntries } from "@/services/journalService"
+import { nextSequence } from "@/services/counter"
 import { computeTotals } from "@/lib/money"
-
-async function nextPaymentNumber(count: () => Promise<number>) {
-  const n = (await count()) + 1
-  return `PMT-${String(n).padStart(6, "0")}`
-}
 
 export async function recordInvoicePayment(
   invoiceId: string,
@@ -22,9 +18,8 @@ export async function recordInvoicePayment(
     throw new Error(`Payment exceeds amount owed (${remaining.toFixed(2)} remaining)`)
   }
 
-  const paymentNumber = await nextPaymentNumber(() => prisma.payment.count())
-
   return prisma.$transaction(async (tx) => {
+    const paymentNumber = await nextSequence("payment", "PMT", tx)
     const payment = await tx.payment.create({
       data: {
         paymentNumber,
@@ -75,9 +70,8 @@ export async function recordPurchaseOrderPayment(
     throw new Error(`Payment exceeds amount owed (${remaining.toFixed(2)} remaining)`)
   }
 
-  const paymentNumber = await nextPaymentNumber(() => prisma.payment.count())
-
   return prisma.$transaction(async (tx) => {
+    const paymentNumber = await nextSequence("payment", "PMT", tx)
     const payment = await tx.payment.create({
       data: {
         paymentNumber,

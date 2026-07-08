@@ -13,9 +13,13 @@ import { OpportunityForm } from "@/components/crm/opportunity-form"
 import { StatusFilter } from "@/components/shared/status-filter"
 import { ViewSwitcher } from "@/components/shared/view-switcher"
 import { KanbanBoard, KanbanColumn, KanbanCard } from "@/components/shared/kanban"
+import { Pagination } from "@/components/shared/pagination"
 import { crmStages } from "@/lib/validations/crm"
 import { prisma } from "@/lib/prisma"
 import { getTranslations } from "@/lib/i18n/server"
+import { pageArgs, pageCount, parsePage } from "@/lib/pagination"
+
+const KANBAN_TAKE = 200
 
 const stageAccent: Record<string, string> = {
   NEW: "bg-slate-400",
@@ -36,19 +40,23 @@ const stageVariant: Record<string, "default" | "secondary" | "outline" | "destru
 export default async function CrmPage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string; stage?: string }>
+  searchParams: Promise<{ view?: string; stage?: string; page?: string }>
 }) {
-  const { view, stage } = await searchParams
+  const { view, stage, page: pageParam } = await searchParams
   const { t } = await getTranslations()
   const activeView = view === "list" ? "list" : "kanban"
   const activeStage =
     stage && (crmStages as readonly string[]).includes(stage) ? stage : undefined
+  const page = parsePage(pageParam)
+  const where = activeStage ? { stage: activeStage } : undefined
 
-  const [opportunities, customers] = await Promise.all([
+  const [total, opportunities, customers] = await Promise.all([
+    prisma.opportunity.count({ where }),
     prisma.opportunity.findMany({
-      where: activeStage ? { stage: activeStage } : undefined,
+      where,
       include: { customer: true, owner: true },
       orderBy: { createdAt: "desc" },
+      ...(activeView === "kanban" ? { skip: 0, take: KANBAN_TAKE } : pageArgs(page)),
     }),
     prisma.customer.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
   ])
@@ -96,6 +104,7 @@ export default async function CrmPage({
           })}
         </KanbanBoard>
       ) : (
+        <div className="space-y-4">
         <Table>
           <TableHeader>
             <TableRow>
@@ -131,6 +140,8 @@ export default async function CrmPage({
             )}
           </TableBody>
         </Table>
+        <Pagination page={page} totalPages={pageCount(total)} />
+        </div>
       )}
     </div>
   )

@@ -61,9 +61,35 @@ async function main() {
 
   console.log(`Seeded ${DEFAULT_ACCOUNTS.length} default accounts`)
 
+  await ensureCounters()
   await seedDemoData(admin.id, admin.email)
   await seedDemoHr()
   await seedDemoCrm(admin.id, admin.email)
+}
+
+/**
+ * Baselines the atomic document-number counters. Each counter starts at the
+ * current row count for that entity, so an existing database with SO-000004
+ * already present continues at 000005 (no collisions), while a fresh database
+ * starts at 0. Idempotent: once a counter exists it is left untouched.
+ */
+async function ensureCounters() {
+  const specs: { key: string; count: () => Promise<number> }[] = [
+    { key: "salesOrder", count: () => prisma.salesOrder.count() },
+    { key: "invoice", count: () => prisma.invoice.count() },
+    { key: "purchaseOrder", count: () => prisma.purchaseOrder.count() },
+    { key: "journalEntry", count: () => prisma.journalEntry.count() },
+    { key: "payment", count: () => prisma.payment.count() },
+  ]
+  for (const spec of specs) {
+    const value = await spec.count()
+    await prisma.counter.upsert({
+      where: { key: spec.key },
+      create: { key: spec.key, value },
+      update: {},
+    })
+  }
+  console.log("Ensured document-number counters.")
 }
 
 /**

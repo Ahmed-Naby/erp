@@ -13,8 +13,10 @@ import { ContactForm } from "@/components/contacts/contact-form"
 import { StatusFilter } from "@/components/shared/status-filter"
 import { ViewSwitcher } from "@/components/shared/view-switcher"
 import { KanbanBoard, KanbanColumn, KanbanCard } from "@/components/shared/kanban"
+import { Pagination } from "@/components/shared/pagination"
 import { prisma } from "@/lib/prisma"
 import { getTranslations } from "@/lib/i18n/server"
+import { PAGE_SIZE, pageCount, parsePage } from "@/lib/pagination"
 
 type ContactRow = {
   id: string
@@ -29,12 +31,13 @@ type ContactRow = {
 export default async function ContactsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string; kind?: string }>
+  searchParams: Promise<{ view?: string; kind?: string; page?: string }>
 }) {
-  const { view, kind } = await searchParams
+  const { view, kind, page: pageParam } = await searchParams
   const { t } = await getTranslations()
   const activeView = view === "kanban" ? "kanban" : "list"
   const activeKind = kind === "customer" || kind === "vendor" ? kind : undefined
+  const page = parsePage(pageParam)
 
   const [customers, suppliers] = await Promise.all([
     activeKind === "vendor"
@@ -71,6 +74,8 @@ export default async function ContactsPage({
       docCount: s._count.purchaseOrders,
     })),
   ].sort((a, b) => a.name.localeCompare(b.name))
+
+  const pagedContacts = contacts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   const kinds: { key: "customer" | "vendor"; label: string }[] = [
     { key: "customer", label: t("contacts.customers") },
@@ -125,6 +130,7 @@ export default async function ContactsPage({
           })}
         </KanbanBoard>
       ) : (
+        <div className="space-y-4">
         <Table>
           <TableHeader>
             <TableRow>
@@ -136,7 +142,7 @@ export default async function ContactsPage({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {contacts.map((c) => (
+            {pagedContacts.map((c) => (
               <TableRow key={`${c.kind}-${c.id}`}>
                 <TableCell>
                   <Link
@@ -165,6 +171,8 @@ export default async function ContactsPage({
             )}
           </TableBody>
         </Table>
+        <Pagination page={page} totalPages={pageCount(contacts.length)} />
+        </div>
       )}
     </div>
   )

@@ -12,18 +12,28 @@ import {
 import { CategoryManager } from "@/components/inventory/category-manager"
 import { ProductActiveToggle } from "@/components/inventory/product-active-toggle"
 import { ProductForm } from "@/components/inventory/product-form"
+import { Pagination } from "@/components/shared/pagination"
 import { prisma } from "@/lib/prisma"
 import { getTranslations } from "@/lib/i18n/server"
+import { pageArgs, pageCount, parsePage } from "@/lib/pagination"
 
-export default async function ProductsPage() {
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>
+}) {
+  const { page: pageParam } = await searchParams
+  const page = parsePage(pageParam)
   const { t } = await getTranslations()
-  const [products, categories] = await Promise.all([
+  const [total, products, categories] = await Promise.all([
+    prisma.product.count(),
     prisma.product.findMany({
       include: {
         category: true,
         stockItems: true,
       },
       orderBy: { name: "asc" },
+      ...pageArgs(page),
     }),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
   ])
@@ -126,6 +136,7 @@ export default async function ProductsPage() {
           )}
         </TableBody>
       </Table>
+      <Pagination page={page} totalPages={pageCount(total)} />
     </div>
   )
 }

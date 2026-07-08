@@ -7,15 +7,27 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { SupplierForm } from "@/components/purchasing/supplier-form"
+import { Pagination } from "@/components/shared/pagination"
 import { prisma } from "@/lib/prisma"
 import { getTranslations } from "@/lib/i18n/server"
+import { pageArgs, pageCount, parsePage } from "@/lib/pagination"
 
-export default async function SuppliersPage() {
+export default async function SuppliersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>
+}) {
+  const { page: pageParam } = await searchParams
+  const page = parsePage(pageParam)
   const { t } = await getTranslations()
-  const suppliers = await prisma.supplier.findMany({
-    include: { _count: { select: { purchaseOrders: true } } },
-    orderBy: { name: "asc" },
-  })
+  const [total, suppliers] = await Promise.all([
+    prisma.supplier.count(),
+    prisma.supplier.findMany({
+      include: { _count: { select: { purchaseOrders: true } } },
+      orderBy: { name: "asc" },
+      ...pageArgs(page),
+    }),
+  ])
 
   return (
     <div className="space-y-6">
@@ -67,6 +79,7 @@ export default async function SuppliersPage() {
           )}
         </TableBody>
       </Table>
+      <Pagination page={page} totalPages={pageCount(total)} />
     </div>
   )
 }

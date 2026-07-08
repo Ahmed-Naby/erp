@@ -1,11 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { ACCOUNT_CODES } from "@/lib/accounts"
+import { nextSequence } from "@/services/counter"
 import type { Prisma } from "@prisma/client"
-
-async function nextEntryNumber(count: () => Promise<number>) {
-  const n = (await count()) + 1
-  return `JE-${String(n).padStart(6, "0")}`
-}
 
 type JournalLineInput = {
   accountCode: string
@@ -36,7 +32,7 @@ export async function postJournalEntry(
   }
 
   const run = async (client: Prisma.TransactionClient) => {
-    const entryNumber = await nextEntryNumber(() => client.journalEntry.count())
+    const entryNumber = await nextSequence("journalEntry", "JE", client)
 
     const accounts = await client.account.findMany({
       where: { code: { in: input.lines.map((l) => l.accountCode) } },

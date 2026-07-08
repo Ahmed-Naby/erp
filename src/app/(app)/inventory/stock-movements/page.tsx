@@ -7,16 +7,25 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { StockAdjustmentForm } from "@/components/inventory/stock-adjustment-form"
+import { Pagination } from "@/components/shared/pagination"
 import { prisma } from "@/lib/prisma"
 import { getTranslations } from "@/lib/i18n/server"
+import { pageArgs, pageCount, parsePage } from "@/lib/pagination"
 
-export default async function StockMovementsPage() {
+export default async function StockMovementsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>
+}) {
+  const { page: pageParam } = await searchParams
+  const page = parsePage(pageParam)
   const { t } = await getTranslations()
-  const [movements, products, warehouses] = await Promise.all([
+  const [total, movements, products, warehouses] = await Promise.all([
+    prisma.stockMovement.count(),
     prisma.stockMovement.findMany({
       include: { product: true, warehouse: true, createdBy: true },
       orderBy: { createdAt: "desc" },
-      take: 100,
+      ...pageArgs(page),
     }),
     prisma.product.findMany({
       where: { active: true },
@@ -84,6 +93,7 @@ export default async function StockMovementsPage() {
           )}
         </TableBody>
       </Table>
+      <Pagination page={page} totalPages={pageCount(total)} />
     </div>
   )
 }

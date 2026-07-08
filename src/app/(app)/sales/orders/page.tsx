@@ -13,11 +13,14 @@ import { Button } from "@/components/ui/button"
 import { StatusFilter } from "@/components/shared/status-filter"
 import { ViewSwitcher } from "@/components/shared/view-switcher"
 import { KanbanBoard, KanbanColumn, KanbanCard } from "@/components/shared/kanban"
+import { Pagination } from "@/components/shared/pagination"
 import { computeTotals } from "@/lib/money"
 import { prisma } from "@/lib/prisma"
 import { getTranslations } from "@/lib/i18n/server"
+import { pageArgs, pageCount, parsePage } from "@/lib/pagination"
 
 const STATUSES = ["DRAFT", "CONFIRMED", "INVOICED", "CANCELLED"]
+const KANBAN_TAKE = 200
 
 const statusVariant: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
   DRAFT: "outline",
@@ -36,18 +39,24 @@ const statusAccent: Record<string, string> = {
 export default async function SalesOrdersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string; status?: string }>
+  searchParams: Promise<{ view?: string; status?: string; page?: string }>
 }) {
-  const { view, status } = await searchParams
+  const { view, status, page: pageParam } = await searchParams
   const { t } = await getTranslations()
   const activeView = view === "kanban" ? "kanban" : "list"
   const activeStatus = status && STATUSES.includes(status) ? status : undefined
+  const page = parsePage(pageParam)
+  const where = activeStatus ? { status: activeStatus } : undefined
 
-  const orders = await prisma.salesOrder.findMany({
-    where: activeStatus ? { status: activeStatus } : undefined,
-    include: { customer: true, lines: true },
-    orderBy: { createdAt: "desc" },
-  })
+  const [total, orders] = await Promise.all([
+    prisma.salesOrder.count({ where }),
+    prisma.salesOrder.findMany({
+      where,
+      include: { customer: true, lines: true },
+      orderBy: { createdAt: "desc" },
+      ...(activeView === "kanban" ? { skip: 0, take: KANBAN_TAKE } : pageArgs(page)),
+    }),
+  ])
 
   const totalFor = (lines: { quantity: number; unitPrice: number; taxRate: number }[]) =>
     computeTotals(lines.map((l) => ({ amount: l.quantity * l.unitPrice, taxRate: l.taxRate }))).total
@@ -95,6 +104,7 @@ export default async function SalesOrdersPage({
           })}
         </KanbanBoard>
       ) : (
+        <div className="space-y-4">
         <Table>
           <TableHeader>
             <TableRow>
@@ -136,6 +146,8 @@ export default async function SalesOrdersPage({
             )}
           </TableBody>
         </Table>
+        <Pagination page={page} totalPages={pageCount(total)} />
+        </div>
       )}
     </div>
   )

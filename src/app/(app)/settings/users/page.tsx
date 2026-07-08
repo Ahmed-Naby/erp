@@ -12,11 +12,22 @@ import { UserActiveToggle } from "@/components/settings/user-active-toggle"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { getTranslations } from "@/lib/i18n/server"
+import { Pagination } from "@/components/shared/pagination"
+import { pageArgs, pageCount, parsePage } from "@/lib/pagination"
 
-export default async function UsersPage() {
+export default async function UsersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>
+}) {
+  const { page: pageParam } = await searchParams
+  const page = parsePage(pageParam)
   const session = await auth()
   const { t } = await getTranslations()
-  const users = await prisma.user.findMany({ orderBy: { name: "asc" } })
+  const [total, users] = await Promise.all([
+    prisma.user.count(),
+    prisma.user.findMany({ orderBy: { name: "asc" }, ...pageArgs(page) }),
+  ])
 
   return (
     <div className="space-y-6">
@@ -82,6 +93,7 @@ export default async function UsersPage() {
           )}
         </TableBody>
       </Table>
+      <Pagination page={page} totalPages={pageCount(total)} />
     </div>
   )
 }

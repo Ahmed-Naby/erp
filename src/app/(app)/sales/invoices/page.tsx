@@ -10,15 +10,27 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { PaymentForm } from "@/components/accounting/payment-form"
+import { Pagination } from "@/components/shared/pagination"
 import { prisma } from "@/lib/prisma"
 import { getTranslations } from "@/lib/i18n/server"
+import { pageArgs, pageCount, parsePage } from "@/lib/pagination"
 
-export default async function InvoicesPage() {
+export default async function InvoicesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>
+}) {
+  const { page: pageParam } = await searchParams
+  const page = parsePage(pageParam)
   const { t } = await getTranslations()
-  const invoices = await prisma.invoice.findMany({
-    include: { customer: true, salesOrder: true },
-    orderBy: { issuedAt: "desc" },
-  })
+  const [total, invoices] = await Promise.all([
+    prisma.invoice.count(),
+    prisma.invoice.findMany({
+      include: { customer: true, salesOrder: true },
+      orderBy: { issuedAt: "desc" },
+      ...pageArgs(page),
+    }),
+  ])
 
   return (
     <div className="space-y-6">
@@ -81,6 +93,7 @@ export default async function InvoicesPage() {
           )}
         </TableBody>
       </Table>
+      <Pagination page={page} totalPages={pageCount(total)} />
     </div>
   )
 }

@@ -4,11 +4,13 @@ import { defineConfig } from "vitest/config"
 export default defineConfig({
   test: {
     environment: "node",
-    env: { DATABASE_URL: "file:./test.db" },
+    // DATABASE_URL is inherited from the environment — a throwaway Postgres
+    // database (a local instance or the CI service container). The schema is
+    // Postgres, so tests require a real Postgres, not the old SQLite file.
     testTimeout: 15000,
     include: ["src/**/*.test.ts"],
-    // Single SQLite file DB: parallel test files would contend on the same
-    // file lock, so run files sequentially in one process.
+    // Tests share one database, so run files sequentially to avoid cross-file
+    // data races within a single run.
     fileParallelism: false,
   },
   resolve: {

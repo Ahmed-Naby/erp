@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "db:seed": "tsx prisma/seed.ts",
-    "test:db:push": "cross-env DATABASE_URL=file:./test.db prisma db push --skip-generate --accept-data-loss",
+    "test:db:push": "prisma db push --skip-generate --accept-data-loss",
     "test": "npm run test:db:push && vitest run"
   },
   "prisma": {

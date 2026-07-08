@@ -65,6 +65,9 @@ export const ar: Messages = {
   "common.nothingHere": "لا يوجد شيء هنا",
   "common.you": "أنت",
   "common.somethingWrong": "حدث خطأ ما",
+  "pagination.pageOf": "صفحة {page} من {total}",
+  "pagination.previous": "السابق",
+  "pagination.next": "التالي",
 
   // Auth
   "auth.signIn": "تسجيل الدخول",

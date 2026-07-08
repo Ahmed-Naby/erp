@@ -12,22 +12,29 @@ import { Badge } from "@/components/ui/badge"
 import { EmployeeForm } from "@/components/hr/employee-form"
 import { ViewSwitcher } from "@/components/shared/view-switcher"
 import { KanbanBoard, KanbanColumn, KanbanCard } from "@/components/shared/kanban"
+import { Pagination } from "@/components/shared/pagination"
 import { prisma } from "@/lib/prisma"
 import { getTranslations } from "@/lib/i18n/server"
+import { pageArgs, pageCount, parsePage } from "@/lib/pagination"
+
+const KANBAN_TAKE = 200
 
 export default async function EmployeesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string }>
+  searchParams: Promise<{ view?: string; page?: string }>
 }) {
-  const { view } = await searchParams
+  const { view, page: pageParam } = await searchParams
   const { t } = await getTranslations()
   const activeView = view === "kanban" ? "kanban" : "list"
+  const page = parsePage(pageParam)
 
-  const [employees, departments] = await Promise.all([
+  const [total, employees, departments] = await Promise.all([
+    prisma.employee.count(),
     prisma.employee.findMany({
       include: { department: true, manager: true },
       orderBy: { name: "asc" },
+      ...(activeView === "kanban" ? { skip: 0, take: KANBAN_TAKE } : pageArgs(page)),
     }),
     prisma.department.findMany({ orderBy: { name: "asc" } }),
   ])
@@ -81,6 +88,7 @@ export default async function EmployeesPage({
           })}
         </KanbanBoard>
       ) : (
+        <div className="space-y-4">
         <Table>
           <TableHeader>
             <TableRow>
@@ -118,6 +126,8 @@ export default async function EmployeesPage({
             )}
           </TableBody>
         </Table>
+        <Pagination page={page} totalPages={pageCount(total)} />
+        </div>
       )}
     </div>
   )

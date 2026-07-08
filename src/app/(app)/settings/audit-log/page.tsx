@@ -7,8 +7,10 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { Pagination } from "@/components/shared/pagination"
 import { prisma } from "@/lib/prisma"
 import { getTranslations } from "@/lib/i18n/server"
+import { pageArgs, pageCount, parsePage } from "@/lib/pagination"
 
 const actionVariant: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
   CREATE: "default",
@@ -16,12 +18,21 @@ const actionVariant: Record<string, "default" | "secondary" | "destructive" | "o
   DELETE: "destructive",
 }
 
-export default async function AuditLogPage() {
+export default async function AuditLogPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>
+}) {
+  const { page: pageParam } = await searchParams
+  const page = parsePage(pageParam)
   const { t } = await getTranslations()
-  const entries = await prisma.auditLog.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 200,
-  })
+  const [total, entries] = await Promise.all([
+    prisma.auditLog.count(),
+    prisma.auditLog.findMany({
+      orderBy: { createdAt: "desc" },
+      ...pageArgs(page),
+    }),
+  ])
 
   return (
     <div className="space-y-6">
@@ -66,6 +77,7 @@ export default async function AuditLogPage() {
           )}
         </TableBody>
       </Table>
+      <Pagination page={page} totalPages={pageCount(total)} />
     </div>
   )
 }
