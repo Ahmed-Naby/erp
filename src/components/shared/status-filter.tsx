@@ -12,17 +12,19 @@ function toTitle(status: string) {
 export function StatusFilter({
   statuses,
   current,
+  paramName = "status",
 }: {
   statuses: string[]
   current?: string
+  paramName?: string
 }) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
   function hrefFor(status?: string) {
     const params = new URLSearchParams(searchParams.toString())
-    if (status) params.set("status", status)
-    else params.delete("status")
+    if (status) params.set(paramName, status)
+    else params.delete(paramName)
     const qs = params.toString()
     return qs ? `${pathname}?${qs}` : pathname
   }

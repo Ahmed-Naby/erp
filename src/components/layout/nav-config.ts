@@ -1,11 +1,14 @@
 import {
   Calculator,
+  Contact,
   LayoutDashboard,
   type LucideIcon,
   Package,
   Settings,
   ShoppingBag,
   ShoppingCart,
+  Target,
+  Users,
 } from "lucide-react"
 
 export type NavItem = {
@@ -56,6 +59,27 @@ export const navGroups: NavGroup[] = [
     items: [
       { label: "Suppliers", href: "/purchasing/suppliers" },
       { label: "Purchase Orders", href: "/purchasing/orders" },
+    ],
+  },
+  {
+    label: "CRM",
+    icon: Target,
+    color: "bg-fuchsia-100 text-fuchsia-600 dark:bg-fuchsia-500/20 dark:text-fuchsia-300",
+    items: [{ label: "Pipeline", href: "/crm" }],
+  },
+  {
+    label: "Contacts",
+    icon: Contact,
+    color: "bg-cyan-100 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-300",
+    items: [{ label: "Contacts", href: "/contacts" }],
+  },
+  {
+    label: "Employees",
+    icon: Users,
+    color: "bg-orange-100 text-orange-600 dark:bg-orange-500/20 dark:text-orange-300",
+    items: [
+      { label: "Employees", href: "/hr/employees" },
+      { label: "Departments", href: "/hr/departments" },
     ],
   },
   {

@@ -62,6 +62,8 @@ async function main() {
   console.log(`Seeded ${DEFAULT_ACCOUNTS.length} default accounts`)
 
   await seedDemoData(admin.id, admin.email)
+  await seedDemoHr()
+  await seedDemoCrm(admin.id, admin.email)
 }
 
 /**
@@ -212,6 +214,121 @@ async function seedDemoData(adminId: string, adminEmail: string) {
   await logPO(poCancelled.id, "Cancelled purchase order", "UPDATE")
 
   console.log("Seeded demo data: 6 products, 3 customers, 2 suppliers, 4 sales orders, 4 purchase orders.")
+}
+
+/** Idempotent HR demo data — guarded on any existing department. */
+async function seedDemoHr() {
+  const existing = await prisma.department.findFirst()
+  if (existing) {
+    console.log("HR demo data already present — skipping.")
+    return
+  }
+
+  const [sales, operations, finance] = await Promise.all([
+    prisma.department.create({ data: { name: "Sales" } }),
+    prisma.department.create({ data: { name: "Operations" } }),
+    prisma.department.create({ data: { name: "Finance" } }),
+  ])
+
+  const ceo = await prisma.employee.create({
+    data: {
+      name: "Sara Hassan",
+      jobTitle: "Chief Executive Officer",
+      workEmail: "sara.hassan@erp.local",
+      workPhone: "+20 100 000 0001",
+      hireDate: new Date("2019-02-01"),
+    },
+  })
+
+  const salesManager = await prisma.employee.create({
+    data: {
+      name: "Omar Ali",
+      jobTitle: "Sales Manager",
+      workEmail: "omar.ali@erp.local",
+      workPhone: "+20 100 000 0002",
+      departmentId: sales.id,
+      managerId: ceo.id,
+      hireDate: new Date("2020-06-15"),
+    },
+  })
+
+  await prisma.employee.createMany({
+    data: [
+      {
+        name: "Mona Adel",
+        jobTitle: "Account Executive",
+        workEmail: "mona.adel@erp.local",
+        departmentId: sales.id,
+        managerId: salesManager.id,
+        hireDate: new Date("2021-09-01"),
+      },
+      {
+        name: "Youssef Ibrahim",
+        jobTitle: "Warehouse Supervisor",
+        workEmail: "youssef.ibrahim@erp.local",
+        departmentId: operations.id,
+        managerId: ceo.id,
+        hireDate: new Date("2021-01-10"),
+      },
+      {
+        name: "Nour Khaled",
+        jobTitle: "Accountant",
+        workEmail: "nour.khaled@erp.local",
+        departmentId: finance.id,
+        managerId: ceo.id,
+        hireDate: new Date("2022-03-20"),
+      },
+    ],
+  })
+
+  console.log("Seeded HR demo data: 3 departments, 5 employees.")
+}
+
+/** Idempotent CRM demo data — guarded on any existing opportunity. */
+async function seedDemoCrm(adminId: string, adminEmail: string) {
+  const existing = await prisma.opportunity.findFirst()
+  if (existing) {
+    console.log("CRM demo data already present — skipping.")
+    return
+  }
+
+  const [acme, globex, initech] = await Promise.all([
+    prisma.customer.findFirst({ where: { name: "Acme Corporation" } }),
+    prisma.customer.findFirst({ where: { name: "Globex Ltd" } }),
+    prisma.customer.findFirst({ where: { name: "Initech LLC" } }),
+  ])
+
+  const specs = [
+    { name: "Acme — annual hardware refresh", customerId: acme?.id, expectedRevenue: 15000, stage: "WON" },
+    { name: "Globex — 50 monitor rollout", customerId: globex?.id, expectedRevenue: 12000, stage: "PROPOSITION" },
+    { name: "Initech — office starter kits", customerId: initech?.id, expectedRevenue: 8000, stage: "QUALIFIED" },
+    { name: "Acme — accessories upsell", customerId: acme?.id, expectedRevenue: 3500, stage: "NEW" },
+    { name: "Globex — cancelled pilot", customerId: globex?.id, expectedRevenue: 2000, stage: "LOST" },
+  ]
+
+  for (const spec of specs) {
+    const opportunity = await prisma.opportunity.create({
+      data: {
+        name: spec.name,
+        customerId: spec.customerId,
+        expectedRevenue: spec.expectedRevenue,
+        stage: spec.stage,
+        ownerId: adminId,
+      },
+    })
+    if (spec.stage !== "NEW") {
+      await logAudit({
+        userId: adminId,
+        userEmail: adminEmail,
+        action: "UPDATE",
+        entityType: "Opportunity",
+        entityId: opportunity.id,
+        summary: `Moved to ${spec.stage.charAt(0)}${spec.stage.slice(1).toLowerCase()}`,
+      })
+    }
+  }
+
+  console.log("Seeded CRM demo data: 5 opportunities.")
 }
 
 main()
