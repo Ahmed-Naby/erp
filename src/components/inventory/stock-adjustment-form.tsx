@@ -31,6 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useTranslations } from "@/components/i18n/provider"
 import {
   stockAdjustmentSchema,
   type StockAdjustmentInput,
@@ -39,11 +40,11 @@ import { recordStockAdjustment } from "@/app/(app)/inventory/stock-movements/act
 
 type Option = { id: string; name: string }
 
-const typeLabels: Record<StockAdjustmentInput["type"], string> = {
-  IN: "Stock In (+)",
-  OUT: "Stock Out (-)",
-  ADJUST: "Adjust To (absolute count)",
-  TRANSFER: "Transfer",
+const typeLabelKeys: Record<StockAdjustmentInput["type"], string> = {
+  IN: "stockMovements.typeIn",
+  OUT: "stockMovements.typeOut",
+  ADJUST: "stockMovements.typeAdjust",
+  TRANSFER: "stockMovements.typeIn",
 }
 
 export function StockAdjustmentForm({
@@ -55,6 +56,7 @@ export function StockAdjustmentForm({
 }) {
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const t = useTranslations()
 
   const form = useForm<
     z.input<typeof stockAdjustmentSchema>,
@@ -75,11 +77,11 @@ export function StockAdjustmentForm({
     setIsSubmitting(true)
     try {
       await recordStockAdjustment(values)
-      toast.success("Stock updated")
+      toast.success(t("stockMovements.updated"))
       form.reset()
       setOpen(false)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong")
+      toast.error(err instanceof Error ? err.message : t("common.somethingWrong"))
     } finally {
       setIsSubmitting(false)
     }
@@ -87,10 +89,10 @@ export function StockAdjustmentForm({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button />}>Adjust Stock</DialogTrigger>
+      <DialogTrigger render={<Button />}>{t("products.adjustStock")}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Adjust Stock</DialogTitle>
+          <DialogTitle>{t("products.adjustStock")}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -99,11 +101,11 @@ export function StockAdjustmentForm({
               name="productId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Product</FormLabel>
+                  <FormLabel>{t("stockMovements.product")}</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a product" />
+                        <SelectValue placeholder={t("stockMovements.selectProduct")} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -123,11 +125,11 @@ export function StockAdjustmentForm({
               name="warehouseId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Warehouse</FormLabel>
+                  <FormLabel>{t("stockMovements.warehouse")}</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a warehouse" />
+                        <SelectValue placeholder={t("stockMovements.selectWarehouse")} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -147,7 +149,7 @@ export function StockAdjustmentForm({
               name="type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Movement Type</FormLabel>
+                  <FormLabel>{t("stockMovements.movementType")}</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger className="w-full">
@@ -155,9 +157,9 @@ export function StockAdjustmentForm({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {(["IN", "OUT", "ADJUST"] as const).map((t) => (
-                        <SelectItem key={t} value={t}>
-                          {typeLabels[t]}
+                      {(["IN", "OUT", "ADJUST"] as const).map((moveType) => (
+                        <SelectItem key={moveType} value={moveType}>
+                          {t(typeLabelKeys[moveType])}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -171,7 +173,7 @@ export function StockAdjustmentForm({
               name="quantity"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Quantity</FormLabel>
+                  <FormLabel>{t("common.quantity")}</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -189,7 +191,7 @@ export function StockAdjustmentForm({
               name="note"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Note</FormLabel>
+                  <FormLabel>{t("stockMovements.note")}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -199,7 +201,7 @@ export function StockAdjustmentForm({
             />
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : "Save"}
+                {isSubmitting ? t("common.saving") : t("common.save")}
               </Button>
             </DialogFooter>
           </form>

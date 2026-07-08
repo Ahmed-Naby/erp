@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { prisma } from "@/lib/prisma"
+import { getTranslations } from "@/lib/i18n/server"
 
 export default async function ProductDetailPage({
   params,
@@ -18,6 +19,7 @@ export default async function ProductDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
+  const { t } = await getTranslations()
 
   const product = await prisma.product.findUnique({
     where: { id },
@@ -42,11 +44,11 @@ export default async function ProductDetailPage({
         <div className="flex items-center gap-2">
           <h1 className="text-2xl font-semibold">{product.name}</h1>
           <Badge variant={product.active ? "default" : "secondary"}>
-            {product.active ? "Active" : "Inactive"}
+            {product.active ? t("status.active") : t("status.inactive")}
           </Badge>
         </div>
         <p className="text-sm text-muted-foreground">
-          SKU {product.sku} · {product.category?.name ?? "No category"}
+          {t("products.sku")} {product.sku} · {product.category?.name ?? t("products.noCategory")}
         </p>
       </div>
 
@@ -54,7 +56,7 @@ export default async function ProductDetailPage({
         <Card>
           <CardHeader>
             <CardTitle className="text-sm text-muted-foreground">
-              Total Stock
+              {t("products.totalStock")}
             </CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-semibold">
@@ -64,7 +66,7 @@ export default async function ProductDetailPage({
         <Card>
           <CardHeader>
             <CardTitle className="text-sm text-muted-foreground">
-              Cost / Sale Price
+              {t("products.costSalePrice")}
             </CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-semibold">
@@ -74,7 +76,7 @@ export default async function ProductDetailPage({
         <Card>
           <CardHeader>
             <CardTitle className="text-sm text-muted-foreground">
-              Reorder Level
+              {t("products.reorderLevel")}
             </CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-semibold">
@@ -84,7 +86,7 @@ export default async function ProductDetailPage({
         <Card>
           <CardHeader>
             <CardTitle className="text-sm text-muted-foreground">
-              Tax Rate
+              {t("products.taxRateLabel")}
             </CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-semibold">
@@ -94,12 +96,12 @@ export default async function ProductDetailPage({
       </div>
 
       <div>
-        <h2 className="mb-2 text-lg font-medium">Stock by Warehouse</h2>
+        <h2 className="mb-2 text-lg font-medium">{t("products.stockByWarehouse")}</h2>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Warehouse</TableHead>
-              <TableHead className="text-right">Quantity</TableHead>
+              <TableHead>{t("stockMovements.warehouse")}</TableHead>
+              <TableHead className="text-right">{t("common.quantity")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -114,7 +116,7 @@ export default async function ProductDetailPage({
             {product.stockItems.length === 0 && (
               <TableRow>
                 <TableCell colSpan={2} className="text-center text-muted-foreground">
-                  No stock recorded yet.
+                  {t("products.noStock")}
                 </TableCell>
               </TableRow>
             )}
@@ -123,15 +125,15 @@ export default async function ProductDetailPage({
       </div>
 
       <div>
-        <h2 className="mb-2 text-lg font-medium">Recent Movements</h2>
+        <h2 className="mb-2 text-lg font-medium">{t("products.recentMovements")}</h2>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Warehouse</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead className="text-right">Quantity</TableHead>
-              <TableHead>Reference</TableHead>
+              <TableHead>{t("common.date")}</TableHead>
+              <TableHead>{t("stockMovements.warehouse")}</TableHead>
+              <TableHead>{t("common.type")}</TableHead>
+              <TableHead className="text-right">{t("common.quantity")}</TableHead>
+              <TableHead>{t("stockMovements.reference")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -158,7 +160,7 @@ export default async function ProductDetailPage({
             {product.stockMovements.length === 0 && (
               <TableRow>
                 <TableCell colSpan={5} className="text-center text-muted-foreground">
-                  No movements yet.
+                  {t("products.noMovements")}
                 </TableCell>
               </TableRow>
             )}

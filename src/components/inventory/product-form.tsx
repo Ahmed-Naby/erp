@@ -31,6 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useTranslations } from "@/components/i18n/provider"
 import { productSchema, type ProductInput } from "@/lib/validations/inventory"
 import { createProduct, updateProduct } from "@/app/(app)/inventory/products/actions"
 
@@ -55,6 +56,7 @@ export function ProductForm({
 }: ProductFormProps) {
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const t = useTranslations()
 
   const form = useForm<z.input<typeof productSchema>, unknown, ProductInput>({
     resolver: zodResolver(productSchema),
@@ -76,15 +78,15 @@ export function ProductForm({
     try {
       if (mode === "edit" && productId) {
         await updateProduct(productId, values)
-        toast.success("Product updated")
+        toast.success(t("products.toasts.updated"))
       } else {
         await createProduct(values)
-        toast.success("Product created")
+        toast.success(t("products.toasts.created"))
         form.reset()
       }
       setOpen(false)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong")
+      toast.error(err instanceof Error ? err.message : t("common.somethingWrong"))
     } finally {
       setIsSubmitting(false)
     }
@@ -97,11 +99,11 @@ export function ProductForm({
           <Button variant={triggerVariant} size={mode === "edit" ? "sm" : "default"} />
         }
       >
-        {triggerLabel ?? (mode === "edit" ? "Edit" : "New Product")}
+        {triggerLabel ?? (mode === "edit" ? t("common.edit") : t("products.new"))}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{mode === "edit" ? "Edit Product" : "New Product"}</DialogTitle>
+          <DialogTitle>{mode === "edit" ? t("common.edit") : t("products.new")}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -111,7 +113,7 @@ export function ProductForm({
                 name="sku"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>SKU</FormLabel>
+                    <FormLabel>{t("products.sku")}</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -124,9 +126,9 @@ export function ProductForm({
                 name="unit"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Unit</FormLabel>
+                    <FormLabel>{t("products.unit")}</FormLabel>
                     <FormControl>
-                      <Input placeholder="unit, kg, box..." {...field} />
+                      <Input placeholder={t("products.unitPlaceholder")} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -138,7 +140,7 @@ export function ProductForm({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>{t("common.name")}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -151,18 +153,18 @@ export function ProductForm({
               name="categoryId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Category</FormLabel>
+                  <FormLabel>{t("products.category")}</FormLabel>
                   <Select
                     value={field.value || "none"}
                     onValueChange={(v) => field.onChange(v === "none" ? "" : v)}
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="No category" />
+                        <SelectValue placeholder={t("products.noCategory")} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="none">No category</SelectItem>
+                      <SelectItem value="none">{t("products.noCategory")}</SelectItem>
                       {categories.map((c) => (
                         <SelectItem key={c.id} value={c.id}>
                           {c.name}
@@ -180,7 +182,7 @@ export function ProductForm({
                 name="costPrice"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Cost Price</FormLabel>
+                    <FormLabel>{t("products.costPrice")}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -198,7 +200,7 @@ export function ProductForm({
                 name="salePrice"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Sale Price</FormLabel>
+                    <FormLabel>{t("products.salePrice")}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -216,7 +218,7 @@ export function ProductForm({
                 name="reorderLevel"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Reorder Level</FormLabel>
+                    <FormLabel>{t("products.reorderLevel")}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -234,7 +236,7 @@ export function ProductForm({
                 name="taxRate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tax Rate (%)</FormLabel>
+                    <FormLabel>{t("products.taxRatePct")}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -250,7 +252,7 @@ export function ProductForm({
             </div>
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : "Save"}
+                {isSubmitting ? t("common.saving") : t("common.save")}
               </Button>
             </DialogFooter>
           </form>

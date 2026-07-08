@@ -39,6 +39,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { computeTotals } from "@/lib/money"
+import { useTranslations } from "@/components/i18n/provider"
 import { purchaseOrderSchema, type PurchaseOrderInput } from "@/lib/validations/purchasing"
 import {
   createPurchaseOrderAction,
@@ -66,6 +67,7 @@ export function PurchaseOrderForm({
   defaultValues,
 }: PurchaseOrderFormProps) {
   const router = useRouter()
+  const t = useTranslations()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm<
@@ -93,15 +95,15 @@ export function PurchaseOrderForm({
     try {
       if (mode === "edit" && orderId) {
         const result = await updatePurchaseOrderAction(orderId, values)
-        toast.success("Order updated")
+        toast.success(t("purchaseOrders.toasts.updated"))
         router.push(`/purchasing/orders/${result.id}`)
       } else {
         const result = await createPurchaseOrderAction(values)
-        toast.success("Order created")
+        toast.success(t("purchaseOrders.toasts.created"))
         router.push(`/purchasing/orders/${result.id}`)
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong")
+      toast.error(err instanceof Error ? err.message : t("common.somethingWrong"))
       setIsSubmitting(false)
     }
   }
@@ -119,7 +121,7 @@ export function PurchaseOrderForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>{mode === "edit" ? "Edit Order" : "New Purchase Order"}</CardTitle>
+            <CardTitle>{mode === "edit" ? t("purchaseOrders.form.edit") : t("purchaseOrders.form.new")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -128,11 +130,11 @@ export function PurchaseOrderForm({
                 name="supplierId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Supplier</FormLabel>
+                    <FormLabel>{t("purchaseOrders.supplier")}</FormLabel>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select a supplier" />
+                          <SelectValue placeholder={t("purchaseOrders.form.selectSupplier")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -152,11 +154,11 @@ export function PurchaseOrderForm({
                 name="warehouseId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Warehouse</FormLabel>
+                    <FormLabel>{t("salesOrders.form.warehouse")}</FormLabel>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select a warehouse" />
+                          <SelectValue placeholder={t("salesOrders.form.selectWarehouse")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -177,7 +179,7 @@ export function PurchaseOrderForm({
               name="notes"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Notes</FormLabel>
+                  <FormLabel>{t("common.notes")}</FormLabel>
                   <FormControl>
                     <Textarea {...field} />
                   </FormControl>
@@ -190,17 +192,17 @@ export function PurchaseOrderForm({
 
         <Card>
           <CardHeader>
-            <CardTitle>Line Items</CardTitle>
+            <CardTitle>{t("purchaseOrders.lineItems")}</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Product</TableHead>
-                  <TableHead className="w-28">Quantity</TableHead>
-                  <TableHead className="w-32">Unit Cost</TableHead>
-                  <TableHead className="w-24">Tax %</TableHead>
-                  <TableHead className="w-24 text-right">Line Total</TableHead>
+                  <TableHead>{t("stockMovements.product")}</TableHead>
+                  <TableHead className="w-28">{t("common.quantity")}</TableHead>
+                  <TableHead className="w-32">{t("purchaseOrders.unitCost")}</TableHead>
+                  <TableHead className="w-24">{t("products.taxRate")}</TableHead>
+                  <TableHead className="w-24 text-right">{t("purchaseOrders.lineTotal")}</TableHead>
                   <TableHead className="w-12" />
                 </TableRow>
               </TableHeader>
@@ -223,7 +225,7 @@ export function PurchaseOrderForm({
                               >
                                 <FormControl>
                                   <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Select a product" />
+                                    <SelectValue placeholder={t("salesOrders.form.selectProduct")} />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
@@ -324,7 +326,7 @@ export function PurchaseOrderForm({
                 append({ productId: "", quantity: 1, unitCost: 0, taxRate: 0 })
               }
             >
-              Add Line
+              {t("purchaseOrders.form.addLine")}
             </Button>
             <div className="mt-4 flex justify-end">
               <OrderTotals control={form.control} />
@@ -332,7 +334,7 @@ export function PurchaseOrderForm({
           </CardContent>
           <CardFooter className="justify-end">
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : "Save Order"}
+              {isSubmitting ? t("common.saving") : t("salesOrders.saveOrder")}
             </Button>
           </CardFooter>
         </Card>
@@ -361,6 +363,7 @@ function OrderTotals({
 }: {
   control: Control<z.input<typeof purchaseOrderSchema>, unknown, PurchaseOrderInput>
 }) {
+  const t = useTranslations()
   const lines = useWatch({ control, name: "lines" })
   const { subtotal, tax, total } = computeTotals(
     (lines ?? []).map((l) => ({
@@ -371,15 +374,15 @@ function OrderTotals({
   return (
     <div className="w-56 space-y-1 text-sm">
       <div className="flex justify-between">
-        <span className="text-muted-foreground">Subtotal</span>
+        <span className="text-muted-foreground">{t("common.subtotal")}</span>
         <span>{subtotal.toFixed(2)}</span>
       </div>
       <div className="flex justify-between">
-        <span className="text-muted-foreground">Tax</span>
+        <span className="text-muted-foreground">{t("common.tax")}</span>
         <span>{tax.toFixed(2)}</span>
       </div>
       <div className="flex justify-between border-t pt-1 font-medium">
-        <span>Total</span>
+        <span>{t("common.total")}</span>
         <span>{total.toFixed(2)}</span>
       </div>
     </div>

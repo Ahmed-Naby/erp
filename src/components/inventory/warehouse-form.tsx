@@ -23,6 +23,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { useTranslations } from "@/components/i18n/provider"
 import { warehouseSchema, type WarehouseInput } from "@/lib/validations/inventory"
 import {
   createWarehouse,
@@ -46,6 +47,7 @@ export function WarehouseForm({
 }: WarehouseFormProps) {
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const t = useTranslations()
 
   const form = useForm<WarehouseInput>({
     resolver: zodResolver(warehouseSchema),
@@ -57,15 +59,15 @@ export function WarehouseForm({
     try {
       if (mode === "edit" && warehouseId) {
         await updateWarehouse(warehouseId, values)
-        toast.success("Warehouse updated")
+        toast.success(t("warehouses.toasts.updated"))
       } else {
         await createWarehouse(values)
-        toast.success("Warehouse created")
+        toast.success(t("warehouses.toasts.created"))
         form.reset()
       }
       setOpen(false)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong")
+      toast.error(err instanceof Error ? err.message : t("common.somethingWrong"))
     } finally {
       setIsSubmitting(false)
     }
@@ -78,11 +80,11 @@ export function WarehouseForm({
           <Button variant={triggerVariant} size={mode === "edit" ? "sm" : "default"} />
         }
       >
-        {triggerLabel ?? (mode === "edit" ? "Edit" : "New Warehouse")}
+        {triggerLabel ?? (mode === "edit" ? t("common.edit") : t("warehouses.new"))}
       </DialogTrigger>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>{mode === "edit" ? "Edit Warehouse" : "New Warehouse"}</DialogTitle>
+          <DialogTitle>{mode === "edit" ? t("common.edit") : t("warehouses.new")}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -91,7 +93,7 @@ export function WarehouseForm({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>{t("common.name")}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -104,7 +106,7 @@ export function WarehouseForm({
               name="location"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Location</FormLabel>
+                  <FormLabel>{t("warehouses.location")}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -114,7 +116,7 @@ export function WarehouseForm({
             />
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : "Save"}
+                {isSubmitting ? t("common.saving") : t("common.save")}
               </Button>
             </DialogFooter>
           </form>
