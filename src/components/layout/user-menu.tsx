@@ -26,16 +26,33 @@ export function UserMenu({
   name,
   email,
   role,
+  onDark = false,
 }: {
   name: string
   email: string
   role: string
+  onDark?: boolean
 }) {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger render={<Button variant="ghost" className="h-8 gap-2 px-2" />}>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            variant="ghost"
+            className={
+              onDark
+                ? "h-8 gap-2 px-2 text-white hover:bg-white/15 hover:text-white"
+                : "h-8 gap-2 px-2"
+            }
+          />
+        }
+      >
         <Avatar className="size-6">
-          <AvatarFallback className="text-xs">{initials(name)}</AvatarFallback>
+          <AvatarFallback
+            className={onDark ? "bg-white/20 text-xs text-white" : "text-xs"}
+          >
+            {initials(name)}
+          </AvatarFallback>
         </Avatar>
         <span className="hidden text-sm sm:inline">{name}</span>
       </DropdownMenuTrigger>
