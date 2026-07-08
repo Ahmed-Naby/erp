@@ -289,8 +289,13 @@ export const ar: Messages = {
   "accounting.reports.revenue": "الإيرادات",
   "accounting.reports.cogs": "تكلفة البضاعة المباعة",
   "accounting.reports.grossProfit": "إجمالي الربح",
-  "accounting.reports.arAging": "الذمم المدينة",
-  "accounting.reports.apAging": "الذمم الدائنة",
+  "accounting.reports.arAging": "أعمار الذمم المدينة",
+  "accounting.reports.apAging": "أعمار الذمم الدائنة",
+  "accounting.reports.netIncome": "صافي الدخل",
+  "accounting.reports.taxSummary": "ملخص الضرائب",
+  "accounting.reports.taxPayable": "الضريبة المستحقة (ضريبة المخرجات على المبيعات)",
+  "accounting.reports.taxReceivable": "الضريبة القابلة للاسترداد (ضريبة المدخلات على المشتريات)",
+  "accounting.reports.netTaxDue": "صافي الضريبة المستحقة",
 
   // Contacts
   "contacts.title": "جهات الاتصال",

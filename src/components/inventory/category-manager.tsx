@@ -22,6 +22,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { useTranslations } from "@/components/i18n/provider"
 import { categorySchema, type CategoryInput } from "@/lib/validations/inventory"
 import { createCategory, deleteCategory } from "@/app/(app)/inventory/products/actions"
 
@@ -29,6 +30,7 @@ type Category = { id: string; name: string }
 
 export function CategoryManager({ categories }: { categories: Category[] }) {
   const [open, setOpen] = useState(false)
+  const t = useTranslations()
 
   const form = useForm<CategoryInput>({
     resolver: zodResolver(categorySchema),
@@ -38,30 +40,30 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
   async function onSubmit(values: CategoryInput) {
     try {
       await createCategory(values)
-      toast.success("Category created")
+      toast.success(t("products.toasts.categoryCreated"))
       form.reset()
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong")
+      toast.error(err instanceof Error ? err.message : t("common.somethingWrong"))
     }
   }
 
   async function onDelete(id: string) {
     try {
       await deleteCategory(id)
-      toast.success("Category deleted")
+      toast.success(t("products.toasts.categoryDeleted"))
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong")
+      toast.error(err instanceof Error ? err.message : t("common.somethingWrong"))
     }
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={<Button variant="outline" />}>
-        Manage Categories
+        {t("products.manageCategories")}
       </DialogTrigger>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Categories</DialogTitle>
+          <DialogTitle>{t("products.categories")}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex gap-2">
@@ -71,18 +73,18 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
               render={({ field }) => (
                 <FormItem className="flex-1">
                   <FormControl>
-                    <Input placeholder="New category" {...field} />
+                    <Input placeholder={t("products.newCategory")} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button type="submit">Add</Button>
+            <Button type="submit">{t("common.add")}</Button>
           </form>
         </Form>
         <div className="space-y-1">
           {categories.length === 0 && (
-            <p className="text-sm text-muted-foreground">No categories yet.</p>
+            <p className="text-sm text-muted-foreground">{t("products.noCategories")}</p>
           )}
           {categories.map((c) => (
             <div

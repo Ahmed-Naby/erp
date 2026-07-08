@@ -25,6 +25,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { useTranslations } from "@/components/i18n/provider"
 import { paymentSchema, type PaymentInput } from "@/lib/validations/payments"
 import {
   recordInvoicePaymentAction,
@@ -39,6 +40,7 @@ type PaymentFormProps = {
 
 export function PaymentForm({ targetType, targetId, amountDue }: PaymentFormProps) {
   const router = useRouter()
+  const t = useTranslations()
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -58,11 +60,11 @@ export function PaymentForm({ targetType, targetId, amountDue }: PaymentFormProp
       } else {
         await recordPurchaseOrderPaymentAction(targetId, values)
       }
-      toast.success("Payment recorded")
+      toast.success(t("payments.toasts.recorded"))
       setOpen(false)
       router.refresh()
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong")
+      toast.error(err instanceof Error ? err.message : t("common.somethingWrong"))
     } finally {
       setIsSubmitting(false)
     }
@@ -72,22 +74,22 @@ export function PaymentForm({ targetType, targetId, amountDue }: PaymentFormProp
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button size="sm" />}>Record Payment</DialogTrigger>
+      <DialogTrigger render={<Button size="sm" />}>{t("payments.record")}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Record Payment</DialogTitle>
+          <DialogTitle>{t("payments.record")}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Amount due: {amountDue.toFixed(2)}
+              {t("payments.amountDue", { amount: amountDue.toFixed(2) })}
             </p>
             <FormField
               control={form.control}
               name="amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Amount</FormLabel>
+                  <FormLabel>{t("payments.amount")}</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -105,9 +107,9 @@ export function PaymentForm({ targetType, targetId, amountDue }: PaymentFormProp
               name="method"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Method</FormLabel>
+                  <FormLabel>{t("payments.method")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Cash, bank transfer, etc." {...field} />
+                    <Input placeholder={t("payments.methodPlaceholder")} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -115,7 +117,7 @@ export function PaymentForm({ targetType, targetId, amountDue }: PaymentFormProp
             />
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : "Save"}
+                {isSubmitting ? t("common.saving") : t("common.save")}
               </Button>
             </DialogFooter>
           </form>

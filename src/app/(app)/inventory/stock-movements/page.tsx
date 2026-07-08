@@ -8,8 +8,10 @@ import {
 } from "@/components/ui/table"
 import { StockAdjustmentForm } from "@/components/inventory/stock-adjustment-form"
 import { prisma } from "@/lib/prisma"
+import { getTranslations } from "@/lib/i18n/server"
 
 export default async function StockMovementsPage() {
+  const { t } = await getTranslations()
   const [movements, products, warehouses] = await Promise.all([
     prisma.stockMovement.findMany({
       include: { product: true, warehouse: true, createdBy: true },
@@ -31,10 +33,8 @@ export default async function StockMovementsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Stock Movements</h1>
-          <p className="text-sm text-muted-foreground">
-            Full history of stock changes across all warehouses.
-          </p>
+          <h1 className="text-2xl font-semibold">{t("stockMovements.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("stockMovements.subtitle")}</p>
         </div>
         <StockAdjustmentForm products={products} warehouses={warehouses} />
       </div>
@@ -42,14 +42,14 @@ export default async function StockMovementsPage() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Date</TableHead>
-            <TableHead>Product</TableHead>
-            <TableHead>Warehouse</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead className="text-right">Quantity</TableHead>
-            <TableHead>Reference</TableHead>
-            <TableHead>Note</TableHead>
-            <TableHead>By</TableHead>
+            <TableHead>{t("common.date")}</TableHead>
+            <TableHead>{t("stockMovements.product")}</TableHead>
+            <TableHead>{t("stockMovements.warehouse")}</TableHead>
+            <TableHead>{t("common.type")}</TableHead>
+            <TableHead className="text-right">{t("common.quantity")}</TableHead>
+            <TableHead>{t("stockMovements.reference")}</TableHead>
+            <TableHead>{t("stockMovements.note")}</TableHead>
+            <TableHead>{t("audit.user")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -78,7 +78,7 @@ export default async function StockMovementsPage() {
           {movements.length === 0 && (
             <TableRow>
               <TableCell colSpan={8} className="text-center text-muted-foreground">
-                No stock movements yet.
+                {t("stockMovements.empty")}
               </TableCell>
             </TableRow>
           )}

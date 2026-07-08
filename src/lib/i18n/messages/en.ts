@@ -289,8 +289,13 @@ export const en: Messages = {
   "accounting.reports.revenue": "Revenue",
   "accounting.reports.cogs": "Cost of Goods Sold",
   "accounting.reports.grossProfit": "Gross Profit",
-  "accounting.reports.arAging": "Accounts Receivable",
-  "accounting.reports.apAging": "Accounts Payable",
+  "accounting.reports.arAging": "Accounts Receivable Aging",
+  "accounting.reports.apAging": "Accounts Payable Aging",
+  "accounting.reports.netIncome": "Net Income",
+  "accounting.reports.taxSummary": "Tax Summary",
+  "accounting.reports.taxPayable": "Tax Payable (output VAT on sales)",
+  "accounting.reports.taxReceivable": "Tax Receivable (input VAT on purchases)",
+  "accounting.reports.netTaxDue": "Net Tax Due",
 
   // Contacts
   "contacts.title": "Contacts",

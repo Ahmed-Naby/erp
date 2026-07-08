@@ -13,8 +13,10 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { prisma } from "@/lib/prisma"
+import { getTranslations } from "@/lib/i18n/server"
 
 export default async function JournalPage() {
+  const { t } = await getTranslations()
   const entries = await prisma.journalEntry.findMany({
     include: { lines: { include: { account: true } } },
     orderBy: { date: "desc" },
@@ -23,10 +25,8 @@ export default async function JournalPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Journal</h1>
-        <p className="text-sm text-muted-foreground">
-          Double-entry journal entries posted automatically by sales, purchasing, and payment activity.
-        </p>
+        <h1 className="text-2xl font-semibold">{t("accounting.journal.title")}</h1>
+        <p className="text-sm text-muted-foreground">{t("accounting.journal.subtitle")}</p>
       </div>
 
       <div className="space-y-4">
@@ -49,9 +49,9 @@ export default async function JournalPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Account</TableHead>
-                      <TableHead className="text-right">Debit</TableHead>
-                      <TableHead className="text-right">Credit</TableHead>
+                      <TableHead>{t("accounting.journal.account")}</TableHead>
+                      <TableHead className="text-right">{t("accounting.journal.debit")}</TableHead>
+                      <TableHead className="text-right">{t("accounting.journal.credit")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -69,7 +69,7 @@ export default async function JournalPage() {
                       </TableRow>
                     ))}
                     <TableRow>
-                      <TableCell className="font-medium">Total</TableCell>
+                      <TableCell className="font-medium">{t("common.total")}</TableCell>
                       <TableCell className="text-right font-medium">
                         {totalDebit.toFixed(2)}
                       </TableCell>
@@ -84,7 +84,7 @@ export default async function JournalPage() {
           )
         })}
         {entries.length === 0 && (
-          <p className="text-center text-muted-foreground">No journal entries yet.</p>
+          <p className="text-center text-muted-foreground">{t("accounting.journal.empty")}</p>
         )}
       </div>
     </div>

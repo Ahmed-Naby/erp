@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { EmployeeForm } from "@/components/hr/employee-form"
 import { EmployeeActiveToggle } from "@/components/hr/employee-active-toggle"
 import { prisma } from "@/lib/prisma"
+import { getTranslations } from "@/lib/i18n/server"
 
 export default async function EmployeeDetailPage({
   params,
@@ -13,6 +14,7 @@ export default async function EmployeeDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
+  const { t } = await getTranslations()
   const employee = await prisma.employee.findUnique({
     where: { id },
     include: { department: true, manager: true, reports: { orderBy: { name: "asc" } } },
@@ -31,7 +33,7 @@ export default async function EmployeeDetailPage({
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-semibold">{employee.name}</h1>
             <Badge variant={employee.active ? "outline" : "destructive"}>
-              {employee.active ? "Active" : "Archived"}
+              {employee.active ? t("status.active") : t("status.archived")}
             </Badge>
           </div>
           <p className="text-sm text-muted-foreground">{employee.jobTitle ?? "—"}</p>
@@ -62,15 +64,15 @@ export default async function EmployeeDetailPage({
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-1">
           <CardHeader>
-            <CardTitle>Details</CardTitle>
+            <CardTitle>{t("common.details")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
-            <Field label="Department" value={employee.department?.name ?? null} />
-            <Field label="Manager" value={employee.manager?.name ?? null} />
-            <Field label="Work Email" value={employee.workEmail} />
-            <Field label="Work Phone" value={employee.workPhone} />
+            <Field label={t("hr.employees.department")} value={employee.department?.name ?? null} />
+            <Field label={t("hr.employees.manager")} value={employee.manager?.name ?? null} />
+            <Field label={t("hr.employees.workEmail")} value={employee.workEmail} />
+            <Field label={t("hr.employees.workPhone")} value={employee.workPhone} />
             <Field
-              label="Hire Date"
+              label={t("hr.employees.hireDate")}
               value={employee.hireDate ? employee.hireDate.toLocaleDateString() : null}
             />
           </CardContent>
@@ -78,11 +80,11 @@ export default async function EmployeeDetailPage({
 
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Direct Reports</CardTitle>
+            <CardTitle>{t("hr.employees.directReports")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-1 text-sm">
             {employee.reports.length === 0 && (
-              <p className="text-muted-foreground">No direct reports.</p>
+              <p className="text-muted-foreground">{t("hr.employees.noReports")}</p>
             )}
             {employee.reports.map((r) => (
               <Link

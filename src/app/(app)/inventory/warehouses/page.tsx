@@ -8,8 +8,10 @@ import {
 } from "@/components/ui/table"
 import { WarehouseForm } from "@/components/inventory/warehouse-form"
 import { prisma } from "@/lib/prisma"
+import { getTranslations } from "@/lib/i18n/server"
 
 export default async function WarehousesPage() {
+  const { t } = await getTranslations()
   const warehouses = await prisma.warehouse.findMany({
     include: { stockItems: true },
     orderBy: { name: "asc" },
@@ -19,10 +21,8 @@ export default async function WarehousesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Warehouses</h1>
-          <p className="text-sm text-muted-foreground">
-            Locations where stock is held.
-          </p>
+          <h1 className="text-2xl font-semibold">{t("warehouses.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("warehouses.subtitle")}</p>
         </div>
         <WarehouseForm />
       </div>
@@ -30,10 +30,10 @@ export default async function WarehousesPage() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Location</TableHead>
-            <TableHead className="text-right">Distinct Products</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead>{t("common.name")}</TableHead>
+            <TableHead>{t("warehouses.location")}</TableHead>
+            <TableHead className="text-right">{t("products.title")}</TableHead>
+            <TableHead className="text-right">{t("common.actions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -54,7 +54,7 @@ export default async function WarehousesPage() {
           {warehouses.length === 0 && (
             <TableRow>
               <TableCell colSpan={4} className="text-center text-muted-foreground">
-                No warehouses yet. Create your first one.
+                {t("warehouses.empty")}
               </TableCell>
             </TableRow>
           )}

@@ -15,6 +15,7 @@ import {
 import { ACCOUNT_CODES } from "@/lib/accounts"
 import { computeTotals } from "@/lib/money"
 import { prisma } from "@/lib/prisma"
+import { getTranslations } from "@/lib/i18n/server"
 
 const AGING_BUCKETS = [
   { label: "0-30 days", min: 0, max: 30 },
@@ -43,6 +44,7 @@ async function getAccountBalance(code: string, debitNormal: boolean) {
 }
 
 export default async function ReportsPage() {
+  const { t } = await getTranslations()
   const [
     stockItems,
     unpaidInvoices,
@@ -98,15 +100,13 @@ export default async function ReportsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Reports</h1>
-        <p className="text-sm text-muted-foreground">
-          Stock valuation, profit &amp; loss, and receivables/payables aging.
-        </p>
+        <h1 className="text-2xl font-semibold">{t("accounting.reports.title")}</h1>
+        <p className="text-sm text-muted-foreground">{t("accounting.reports.subtitle")}</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Stock Valuation</CardTitle>
+          <CardTitle>{t("accounting.reports.stockValuation")}</CardTitle>
         </CardHeader>
         <CardContent className="text-2xl font-semibold">
           {stockValuation.toFixed(2)}
@@ -115,21 +115,21 @@ export default async function ReportsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Profit &amp; Loss</CardTitle>
+          <CardTitle>{t("accounting.reports.profitLoss")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableBody>
               <TableRow>
-                <TableCell>Sales Revenue</TableCell>
+                <TableCell>{t("accounting.reports.revenue")}</TableCell>
                 <TableCell className="text-right">{revenue.toFixed(2)}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>Cost of Goods Sold</TableCell>
+                <TableCell>{t("accounting.reports.cogs")}</TableCell>
                 <TableCell className="text-right">({cogs.toFixed(2)})</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Net Income</TableCell>
+                <TableCell className="font-medium">{t("accounting.reports.netIncome")}</TableCell>
                 <TableCell className="text-right font-medium">{netIncome.toFixed(2)}</TableCell>
               </TableRow>
             </TableBody>
@@ -139,21 +139,21 @@ export default async function ReportsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Tax Summary</CardTitle>
+          <CardTitle>{t("accounting.reports.taxSummary")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableBody>
               <TableRow>
-                <TableCell>Tax Payable (output VAT on sales)</TableCell>
+                <TableCell>{t("accounting.reports.taxPayable")}</TableCell>
                 <TableCell className="text-right">{taxPayable.toFixed(2)}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>Tax Receivable (input VAT on purchases)</TableCell>
+                <TableCell>{t("accounting.reports.taxReceivable")}</TableCell>
                 <TableCell className="text-right">{taxReceivable.toFixed(2)}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Net Tax Due</TableCell>
+                <TableCell className="font-medium">{t("accounting.reports.netTaxDue")}</TableCell>
                 <TableCell className="text-right font-medium">
                   {(taxPayable - taxReceivable).toFixed(2)}
                 </TableCell>
@@ -165,7 +165,7 @@ export default async function ReportsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Accounts Receivable Aging</CardTitle>
+          <CardTitle>{t("accounting.reports.arAging")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -193,7 +193,7 @@ export default async function ReportsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Accounts Payable Aging</CardTitle>
+          <CardTitle>{t("accounting.reports.apAging")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>

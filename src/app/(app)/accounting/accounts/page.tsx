@@ -8,10 +8,12 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { prisma } from "@/lib/prisma"
+import { getTranslations } from "@/lib/i18n/server"
 
 const debitNormalTypes = new Set(["ASSET", "EXPENSE"])
 
 export default async function ChartOfAccountsPage() {
+  const { t } = await getTranslations()
   const accounts = await prisma.account.findMany({
     include: { journalLines: true },
     orderBy: { code: "asc" },
@@ -20,19 +22,17 @@ export default async function ChartOfAccountsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Chart of Accounts</h1>
-        <p className="text-sm text-muted-foreground">
-          Balances are computed from posted journal entries.
-        </p>
+        <h1 className="text-2xl font-semibold">{t("accounting.accounts.title")}</h1>
+        <p className="text-sm text-muted-foreground">{t("accounting.accounts.subtitle")}</p>
       </div>
 
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Code</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead className="text-right">Balance</TableHead>
+            <TableHead>{t("accounting.accounts.code")}</TableHead>
+            <TableHead>{t("accounting.accounts.accountName")}</TableHead>
+            <TableHead>{t("accounting.accounts.accountType")}</TableHead>
+            <TableHead className="text-right">{t("common.total")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -56,7 +56,7 @@ export default async function ChartOfAccountsPage() {
           {accounts.length === 0 && (
             <TableRow>
               <TableCell colSpan={4} className="text-center text-muted-foreground">
-                No accounts yet.
+                {t("accounting.journal.empty")}
               </TableCell>
             </TableRow>
           )}

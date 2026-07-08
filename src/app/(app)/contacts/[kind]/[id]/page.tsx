@@ -14,6 +14,9 @@ import {
 import { ContactForm } from "@/components/contacts/contact-form"
 import { computeTotals } from "@/lib/money"
 import { prisma } from "@/lib/prisma"
+import { getTranslations } from "@/lib/i18n/server"
+
+type Translate = (key: string, vars?: Record<string, string | number>) => string
 
 export default async function ContactDetailPage({
   params,
@@ -21,6 +24,7 @@ export default async function ContactDetailPage({
   params: Promise<{ kind: string; id: string }>
 }) {
   const { kind, id } = await params
+  const { t } = await getTranslations()
   if (kind !== "customer" && kind !== "vendor") notFound()
 
   if (kind === "customer") {
@@ -35,6 +39,7 @@ export default async function ContactDetailPage({
 
     return (
       <ContactShell
+        t={t}
         kind="customer"
         id={customer.id}
         name={customer.name}
@@ -44,10 +49,11 @@ export default async function ContactDetailPage({
       >
         <Card>
           <CardHeader>
-            <CardTitle>Sales Orders</CardTitle>
+            <CardTitle>{t("contacts.salesOrders")}</CardTitle>
           </CardHeader>
           <CardContent>
             <DocTable
+              t={t}
               rows={customer.salesOrders.map((o) => ({
                 href: `/sales/orders/${o.id}`,
                 number: o.orderNumber,
@@ -57,7 +63,7 @@ export default async function ContactDetailPage({
                   o.lines.map((l) => ({ amount: l.quantity * l.unitPrice, taxRate: l.taxRate }))
                 ).total,
               }))}
-              emptyLabel="No sales orders yet."
+              emptyLabel={t("contacts.noSalesOrders")}
             />
           </CardContent>
         </Card>
@@ -73,6 +79,7 @@ export default async function ContactDetailPage({
 
   return (
     <ContactShell
+      t={t}
       kind="vendor"
       id={supplier.id}
       name={supplier.name}
@@ -82,10 +89,11 @@ export default async function ContactDetailPage({
     >
       <Card>
         <CardHeader>
-          <CardTitle>Purchase Orders</CardTitle>
+          <CardTitle>{t("contacts.purchaseOrders")}</CardTitle>
         </CardHeader>
         <CardContent>
           <DocTable
+            t={t}
             rows={supplier.purchaseOrders.map((o) => ({
               href: `/purchasing/orders/${o.id}`,
               number: o.poNumber,
@@ -95,7 +103,7 @@ export default async function ContactDetailPage({
                 o.lines.map((l) => ({ amount: l.quantity * l.unitCost, taxRate: l.taxRate }))
               ).total,
             }))}
-            emptyLabel="No purchase orders yet."
+            emptyLabel={t("contacts.noPurchaseOrders")}
           />
         </CardContent>
       </Card>
@@ -104,6 +112,7 @@ export default async function ContactDetailPage({
 }
 
 function ContactShell({
+  t,
   kind,
   id,
   name,
@@ -112,6 +121,7 @@ function ContactShell({
   address,
   children,
 }: {
+  t: Translate
   kind: "customer" | "vendor"
   id: string
   name: string
@@ -127,7 +137,7 @@ function ContactShell({
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-semibold">{name}</h1>
             <Badge variant={kind === "customer" ? "default" : "secondary"}>
-              {kind === "customer" ? "Customer" : "Vendor"}
+              {kind === "customer" ? t("kind.customer") : t("kind.vendor")}
             </Badge>
           </div>
         </div>
@@ -149,12 +159,12 @@ function ContactShell({
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-1">
           <CardHeader>
-            <CardTitle>Details</CardTitle>
+            <CardTitle>{t("common.details")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
-            <Field label="Email" value={email} />
-            <Field label="Phone" value={phone} />
-            <Field label="Address" value={address} />
+            <Field label={t("common.email")} value={email} />
+            <Field label={t("common.phone")} value={phone} />
+            <Field label={t("common.address")} value={address} />
           </CardContent>
         </Card>
         <div className="space-y-6 lg:col-span-2">{children}</div>
@@ -173,9 +183,11 @@ function Field({ label, value }: { label: string; value: string | null }) {
 }
 
 function DocTable({
+  t,
   rows,
   emptyLabel,
 }: {
+  t: Translate
   rows: { href: string; number: string; status: string; date: Date; total: number }[]
   emptyLabel: string
 }) {
@@ -183,10 +195,10 @@ function DocTable({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Number</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Date</TableHead>
-          <TableHead className="text-right">Total</TableHead>
+          <TableHead>{t("contacts.number")}</TableHead>
+          <TableHead>{t("common.status")}</TableHead>
+          <TableHead>{t("common.date")}</TableHead>
+          <TableHead className="text-right">{t("common.total")}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -198,7 +210,7 @@ function DocTable({
               </Link>
             </TableCell>
             <TableCell>
-              <Badge variant="outline">{r.status}</Badge>
+              <Badge variant="outline">{t(`status.${r.status}`)}</Badge>
             </TableCell>
             <TableCell className="text-sm text-muted-foreground">
               {r.date.toLocaleDateString()}

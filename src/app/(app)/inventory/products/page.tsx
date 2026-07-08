@@ -13,8 +13,10 @@ import { CategoryManager } from "@/components/inventory/category-manager"
 import { ProductActiveToggle } from "@/components/inventory/product-active-toggle"
 import { ProductForm } from "@/components/inventory/product-form"
 import { prisma } from "@/lib/prisma"
+import { getTranslations } from "@/lib/i18n/server"
 
 export default async function ProductsPage() {
+  const { t } = await getTranslations()
   const [products, categories] = await Promise.all([
     prisma.product.findMany({
       include: {
@@ -30,10 +32,8 @@ export default async function ProductsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Products</h1>
-          <p className="text-sm text-muted-foreground">
-            Manage your product catalog and stock levels.
-          </p>
+          <h1 className="text-2xl font-semibold">{t("products.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("products.subtitle")}</p>
         </div>
         <div className="flex gap-2">
           <CategoryManager categories={categories} />
@@ -44,15 +44,15 @@ export default async function ProductsPage() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>SKU</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead className="text-right">Stock</TableHead>
-            <TableHead className="text-right">Cost</TableHead>
-            <TableHead className="text-right">Sale Price</TableHead>
-            <TableHead className="text-right">Tax %</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead>{t("products.sku")}</TableHead>
+            <TableHead>{t("common.name")}</TableHead>
+            <TableHead>{t("products.category")}</TableHead>
+            <TableHead className="text-right">{t("products.stock")}</TableHead>
+            <TableHead className="text-right">{t("products.costPrice")}</TableHead>
+            <TableHead className="text-right">{t("products.salePrice")}</TableHead>
+            <TableHead className="text-right">{t("products.taxRate")}</TableHead>
+            <TableHead>{t("common.status")}</TableHead>
+            <TableHead className="text-right">{t("common.actions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -93,7 +93,7 @@ export default async function ProductsPage() {
                 </TableCell>
                 <TableCell>
                   <Badge variant={product.active ? "default" : "secondary"}>
-                    {product.active ? "Active" : "Inactive"}
+                    {product.active ? t("status.active") : t("status.inactive")}
                   </Badge>
                 </TableCell>
                 <TableCell className="flex justify-end gap-1">
@@ -120,7 +120,7 @@ export default async function ProductsPage() {
           {products.length === 0 && (
             <TableRow>
               <TableCell colSpan={9} className="text-center text-muted-foreground">
-                No products yet. Create your first one.
+                {t("products.empty")}
               </TableCell>
             </TableRow>
           )}

@@ -11,8 +11,10 @@ import {
 } from "@/components/ui/table"
 import { PaymentForm } from "@/components/accounting/payment-form"
 import { prisma } from "@/lib/prisma"
+import { getTranslations } from "@/lib/i18n/server"
 
 export default async function InvoicesPage() {
+  const { t } = await getTranslations()
   const invoices = await prisma.invoice.findMany({
     include: { customer: true, salesOrder: true },
     orderBy: { issuedAt: "desc" },
@@ -21,23 +23,21 @@ export default async function InvoicesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Invoices</h1>
-        <p className="text-sm text-muted-foreground">
-          Invoices generated from confirmed sales orders.
-        </p>
+        <h1 className="text-2xl font-semibold">{t("invoices.title")}</h1>
+        <p className="text-sm text-muted-foreground">{t("invoices.subtitle")}</p>
       </div>
 
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Invoice #</TableHead>
-            <TableHead>Customer</TableHead>
-            <TableHead>Order</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-right">Amount</TableHead>
-            <TableHead className="text-right">Due</TableHead>
-            <TableHead>Issued</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead>{t("invoices.invoiceNumber")}</TableHead>
+            <TableHead>{t("invoices.customer")}</TableHead>
+            <TableHead>{t("nav.orders")}</TableHead>
+            <TableHead>{t("common.status")}</TableHead>
+            <TableHead className="text-right">{t("invoices.amount")}</TableHead>
+            <TableHead className="text-right">{t("invoices.due")}</TableHead>
+            <TableHead>{t("invoices.issued")}</TableHead>
+            <TableHead className="text-right">{t("common.actions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -58,7 +58,7 @@ export default async function InvoicesPage() {
                 </TableCell>
                 <TableCell>
                   <Badge variant={inv.status === "PAID" ? "default" : "outline"}>
-                    {inv.status}
+                    {t(`status.${inv.status}`)}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">{inv.totalAmount.toFixed(2)}</TableCell>
@@ -75,7 +75,7 @@ export default async function InvoicesPage() {
           {invoices.length === 0 && (
             <TableRow>
               <TableCell colSpan={8} className="text-center text-muted-foreground">
-                No invoices yet.
+                {t("invoices.empty")}
               </TableCell>
             </TableRow>
           )}
