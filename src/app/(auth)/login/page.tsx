@@ -23,10 +23,12 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { useTranslations } from "@/components/i18n/provider"
 import { loginSchema, type LoginInput } from "@/lib/validations/auth"
 
 export default function LoginPage() {
   const router = useRouter()
+  const t = useTranslations()
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -48,7 +50,7 @@ export default function LoginPage() {
     setIsSubmitting(false)
 
     if (result?.error) {
-      setError("Invalid email or password")
+      setError(t("auth.invalid"))
       return
     }
 
@@ -60,8 +62,8 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Sign in</CardTitle>
-          <CardDescription>Enter your credentials to access the ERP.</CardDescription>
+          <CardTitle>{t("auth.loginTitle")}</CardTitle>
+          <CardDescription>{t("auth.loginSubtitle")}</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -71,7 +73,7 @@ export default function LoginPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>{t("common.email")}</FormLabel>
                     <FormControl>
                       <Input type="email" placeholder="you@company.com" {...field} />
                     </FormControl>
@@ -84,7 +86,7 @@ export default function LoginPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>{t("auth.password")}</FormLabel>
                     <FormControl>
                       <Input type="password" placeholder="********" {...field} />
                     </FormControl>
@@ -94,7 +96,7 @@ export default function LoginPage() {
               />
               {error && <p className="text-sm text-destructive">{error}</p>}
               <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? "Signing in..." : "Sign in"}
+                {isSubmitting ? t("auth.signingIn") : t("auth.signIn")}
               </Button>
             </form>
           </Form>

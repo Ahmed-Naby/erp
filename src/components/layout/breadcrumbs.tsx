@@ -6,6 +6,7 @@ import { ChevronRight, House } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { navGroups } from "@/components/layout/nav-config"
+import { useTranslations } from "@/components/i18n/provider"
 
 function isActivePath(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`)
@@ -13,6 +14,7 @@ function isActivePath(pathname: string, href: string) {
 
 export function Breadcrumbs() {
   const pathname = usePathname()
+  const t = useTranslations()
 
   const crumbs: { label: string; href: string }[] = []
   for (const group of navGroups) {
@@ -29,7 +31,7 @@ export function Breadcrumbs() {
       <Link
         href="/dashboard"
         className="text-muted-foreground transition-colors hover:text-foreground"
-        aria-label="Home"
+        aria-label={t("app.home")}
       >
         <House className="size-4" />
       </Link>
@@ -37,9 +39,9 @@ export function Breadcrumbs() {
         const isLast = index === crumbs.length - 1
         return (
           <span key={`${crumb.href}-${index}`} className="flex items-center gap-1">
-            <ChevronRight className="size-3.5 text-muted-foreground/60" />
+            <ChevronRight className="size-3.5 text-muted-foreground/60 rtl:rotate-180" />
             {isLast ? (
-              <span className="font-medium text-foreground">{crumb.label}</span>
+              <span className="font-medium text-foreground">{t(crumb.label)}</span>
             ) : (
               <Link
                 href={crumb.href}
@@ -47,7 +49,7 @@ export function Breadcrumbs() {
                   "text-muted-foreground transition-colors hover:text-foreground"
                 )}
               >
-                {crumb.label}
+                {t(crumb.label)}
               </Link>
             )}
           </span>

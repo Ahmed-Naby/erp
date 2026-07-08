@@ -7,6 +7,8 @@ import { LayoutGrid } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { navGroups } from "@/components/layout/nav-config"
 import { UserMenu } from "@/components/layout/user-menu"
+import { LanguageSwitcher } from "@/components/i18n/language-switcher"
+import { useTranslations } from "@/components/i18n/provider"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,6 +29,7 @@ export function TopNav({
   userEmail: string
 }) {
   const pathname = usePathname()
+  const t = useTranslations()
   const apps = navGroups.filter((group) => !group.adminOnly || role === "ADMIN")
   const currentApp =
     apps.find((group) => group.items.some((item) => isActivePath(pathname, item.href))) ??
@@ -37,7 +40,7 @@ export function TopNav({
       {/* App switcher */}
       <DropdownMenu>
         <DropdownMenuTrigger
-          aria-label="Apps"
+          aria-label={t("app.apps")}
           className="flex size-8 shrink-0 items-center justify-center rounded transition-colors hover:bg-white/15"
         >
           <LayoutGrid className="size-5" />
@@ -60,7 +63,7 @@ export function TopNav({
                   >
                     <Icon className="size-5" />
                   </span>
-                  <span className="text-xs text-foreground">{app.label}</span>
+                  <span className="text-xs text-foreground">{t(app.label)}</span>
                 </Link>
               )
             })}
@@ -73,7 +76,7 @@ export function TopNav({
         href={currentApp.items[0].href}
         className="shrink-0 px-2 text-sm font-semibold whitespace-nowrap"
       >
-        {currentApp.label}
+        {t(currentApp.label)}
       </Link>
 
       {/* Current app menu items */}
@@ -90,14 +93,15 @@ export function TopNav({
                   active ? "bg-white/20 font-medium" : "text-white/85"
                 )}
               >
-                {item.label}
+                {t(item.label)}
               </Link>
             )
           })}
         </nav>
       )}
 
-      <div className="ml-auto shrink-0">
+      <div className="ms-auto flex shrink-0 items-center gap-2">
+        <LanguageSwitcher />
         <UserMenu name={userName} email={userEmail} role={role} onDark />
       </div>
     </header>

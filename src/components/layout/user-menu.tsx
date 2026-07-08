@@ -4,6 +4,7 @@ import { signOut } from "next-auth/react"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import { useTranslations } from "@/components/i18n/provider"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,6 +34,7 @@ export function UserMenu({
   role: string
   onDark?: boolean
 }) {
+  const t = useTranslations()
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -64,13 +66,13 @@ export function UserMenu({
               {email}
             </span>
             <span className="text-xs font-normal text-muted-foreground">
-              Role: {role}
+              {t("common.role")}: {role}
             </span>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/login" })}>
-          Sign out
+          {t("auth.signOut")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
