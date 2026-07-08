@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useTranslations } from "@/components/i18n/provider"
 import { contactSchema, type ContactInput } from "@/lib/validations/contacts"
 import { createContact, updateContact } from "@/app/(app)/contacts/actions"
 
@@ -52,6 +53,7 @@ export function ContactForm({
 }: ContactFormProps) {
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const t = useTranslations()
 
   const form = useForm<ContactInput>({
     resolver: zodResolver(contactSchema),
@@ -70,15 +72,15 @@ export function ContactForm({
     try {
       if (mode === "edit" && contactId && kind) {
         await updateContact(kind, contactId, values)
-        toast.success("Contact updated")
+        toast.success(t("contacts.toasts.updated"))
       } else {
         await createContact(values)
-        toast.success("Contact created")
+        toast.success(t("contacts.toasts.created"))
         form.reset()
       }
       setOpen(false)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong")
+      toast.error(err instanceof Error ? err.message : t("common.somethingWrong"))
     } finally {
       setIsSubmitting(false)
     }
@@ -89,11 +91,13 @@ export function ContactForm({
       <DialogTrigger
         render={<Button variant={triggerVariant} size={mode === "edit" ? "sm" : "default"} />}
       >
-        {triggerLabel ?? (mode === "edit" ? "Edit" : "New Contact")}
+        {triggerLabel ?? (mode === "edit" ? t("common.edit") : t("contacts.new"))}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{mode === "edit" ? "Edit Contact" : "New Contact"}</DialogTitle>
+          <DialogTitle>
+            {mode === "edit" ? t("contacts.editContact") : t("contacts.newContact")}
+          </DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -102,7 +106,7 @@ export function ContactForm({
               name="kind"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Type</FormLabel>
+                  <FormLabel>{t("common.type")}</FormLabel>
                   <Select
                     value={field.value}
                     onValueChange={field.onChange}
@@ -114,8 +118,8 @@ export function ContactForm({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="customer">Customer</SelectItem>
-                      <SelectItem value="vendor">Vendor</SelectItem>
+                      <SelectItem value="customer">{t("kind.customer")}</SelectItem>
+                      <SelectItem value="vendor">{t("kind.vendor")}</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -127,7 +131,7 @@ export function ContactForm({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>{t("common.name")}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -140,7 +144,7 @@ export function ContactForm({
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>{t("common.email")}</FormLabel>
                   <FormControl>
                     <Input type="email" {...field} />
                   </FormControl>
@@ -153,7 +157,7 @@ export function ContactForm({
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone</FormLabel>
+                  <FormLabel>{t("common.phone")}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -166,7 +170,7 @@ export function ContactForm({
               name="address"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Address</FormLabel>
+                  <FormLabel>{t("common.address")}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -176,7 +180,7 @@ export function ContactForm({
             />
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : "Save"}
+                {isSubmitting ? t("common.saving") : t("common.save")}
               </Button>
             </DialogFooter>
           </form>

@@ -23,6 +23,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { useTranslations } from "@/components/i18n/provider"
 import { customerSchema, type CustomerInput } from "@/lib/validations/sales"
 import { createCustomer, updateCustomer } from "@/app/(app)/sales/customers/actions"
 
@@ -43,6 +44,7 @@ export function CustomerForm({
 }: CustomerFormProps) {
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const t = useTranslations()
 
   const form = useForm<CustomerInput>({
     resolver: zodResolver(customerSchema),
@@ -60,15 +62,15 @@ export function CustomerForm({
     try {
       if (mode === "edit" && customerId) {
         await updateCustomer(customerId, values)
-        toast.success("Customer updated")
+        toast.success(t("customers.toasts.updated"))
       } else {
         await createCustomer(values)
-        toast.success("Customer created")
+        toast.success(t("customers.toasts.created"))
         form.reset()
       }
       setOpen(false)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong")
+      toast.error(err instanceof Error ? err.message : t("common.somethingWrong"))
     } finally {
       setIsSubmitting(false)
     }
@@ -81,11 +83,11 @@ export function CustomerForm({
           <Button variant={triggerVariant} size={mode === "edit" ? "sm" : "default"} />
         }
       >
-        {triggerLabel ?? (mode === "edit" ? "Edit" : "New Customer")}
+        {triggerLabel ?? (mode === "edit" ? t("common.edit") : t("customers.new"))}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{mode === "edit" ? "Edit Customer" : "New Customer"}</DialogTitle>
+          <DialogTitle>{mode === "edit" ? t("common.edit") : t("customers.new")}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -94,7 +96,7 @@ export function CustomerForm({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>{t("common.name")}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -107,7 +109,7 @@ export function CustomerForm({
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>{t("common.email")}</FormLabel>
                   <FormControl>
                     <Input type="email" {...field} />
                   </FormControl>
@@ -120,7 +122,7 @@ export function CustomerForm({
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone</FormLabel>
+                  <FormLabel>{t("common.phone")}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -133,7 +135,7 @@ export function CustomerForm({
               name="address"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Address</FormLabel>
+                  <FormLabel>{t("common.address")}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -143,7 +145,7 @@ export function CustomerForm({
             />
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : "Save"}
+                {isSubmitting ? t("common.saving") : t("common.save")}
               </Button>
             </DialogFooter>
           </form>

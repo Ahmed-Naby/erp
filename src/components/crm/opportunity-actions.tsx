@@ -5,16 +5,14 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
+import { useTranslations } from "@/components/i18n/provider"
 import { crmPipeline } from "@/lib/validations/crm"
 import { setOpportunityStage } from "@/app/(app)/crm/actions"
-
-function toTitle(status: string) {
-  return status.charAt(0) + status.slice(1).toLowerCase()
-}
 
 export function OpportunityActions({ id, stage }: { id: string; stage: string }) {
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
+  const t = useTranslations()
 
   function move(target: string, message: string) {
     startTransition(async () => {
@@ -32,22 +30,30 @@ export function OpportunityActions({ id, stage }: { id: string; stage: string })
 
   if (isClosed) {
     return (
-      <Button variant="outline" disabled={isPending} onClick={() => move("NEW", "Opportunity reopened")}>
-        Reopen
+      <Button
+        variant="outline"
+        disabled={isPending}
+        onClick={() => move("NEW", t("crm.toasts.reopened"))}
+      >
+        {t("crm.reopen")}
       </Button>
     )
   }
 
   const index = (crmPipeline as readonly string[]).indexOf(stage)
   const next = crmPipeline[index + 1] ?? "WON"
+  const nextLabel = t(`status.${next}`)
 
   return (
     <div className="flex gap-2">
-      <Button disabled={isPending} onClick={() => move(next, `Moved to ${toTitle(next)}`)}>
-        Move to {toTitle(next)}
+      <Button
+        disabled={isPending}
+        onClick={() => move(next, t("crm.toasts.movedTo", { stage: nextLabel }))}
+      >
+        {t("crm.moveTo", { stage: nextLabel })}
       </Button>
-      <Button variant="outline" disabled={isPending} onClick={() => move("LOST", "Marked as lost")}>
-        Mark Lost
+      <Button variant="outline" disabled={isPending} onClick={() => move("LOST", t("crm.toasts.lost"))}>
+        {t("crm.markLost")}
       </Button>
     </div>
   )

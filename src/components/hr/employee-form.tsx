@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useTranslations } from "@/components/i18n/provider"
 import { employeeSchema, type EmployeeInput } from "@/lib/validations/hr"
 import { createEmployee, updateEmployee } from "@/app/(app)/hr/employees/actions"
 
@@ -54,6 +55,7 @@ export function EmployeeForm({
 }: EmployeeFormProps) {
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const t = useTranslations()
 
   const form = useForm<EmployeeInput>({
     resolver: zodResolver(employeeSchema),
@@ -76,15 +78,15 @@ export function EmployeeForm({
     try {
       if (mode === "edit" && employeeId) {
         await updateEmployee(employeeId, values)
-        toast.success("Employee updated")
+        toast.success(t("hr.employees.toasts.updated"))
       } else {
         await createEmployee(values)
-        toast.success("Employee created")
+        toast.success(t("hr.employees.toasts.created"))
         form.reset()
       }
       setOpen(false)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong")
+      toast.error(err instanceof Error ? err.message : t("common.somethingWrong"))
     } finally {
       setIsSubmitting(false)
     }
@@ -95,11 +97,11 @@ export function EmployeeForm({
       <DialogTrigger
         render={<Button variant={triggerVariant} size={mode === "edit" ? "sm" : "default"} />}
       >
-        {mode === "edit" ? "Edit" : "New Employee"}
+        {mode === "edit" ? t("common.edit") : t("hr.employees.new")}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{mode === "edit" ? "Edit Employee" : "New Employee"}</DialogTitle>
+          <DialogTitle>{mode === "edit" ? t("hr.employees.edit") : t("hr.employees.new")}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -108,7 +110,7 @@ export function EmployeeForm({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>{t("common.name")}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -121,7 +123,7 @@ export function EmployeeForm({
               name="jobTitle"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Job Title</FormLabel>
+                  <FormLabel>{t("hr.employees.jobTitle")}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -134,7 +136,7 @@ export function EmployeeForm({
               name="workEmail"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Work Email</FormLabel>
+                  <FormLabel>{t("hr.employees.workEmail")}</FormLabel>
                   <FormControl>
                     <Input type="email" {...field} />
                   </FormControl>
@@ -147,7 +149,7 @@ export function EmployeeForm({
               name="workPhone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Work Phone</FormLabel>
+                  <FormLabel>{t("hr.employees.workPhone")}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -160,7 +162,7 @@ export function EmployeeForm({
               name="departmentId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Department</FormLabel>
+                  <FormLabel>{t("hr.employees.department")}</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger className="w-full">
@@ -168,7 +170,7 @@ export function EmployeeForm({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="none">— None —</SelectItem>
+                      <SelectItem value="none">{t("common.none")}</SelectItem>
                       {departments.map((d) => (
                         <SelectItem key={d.id} value={d.id}>
                           {d.name}
@@ -185,7 +187,7 @@ export function EmployeeForm({
               name="managerId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Manager</FormLabel>
+                  <FormLabel>{t("hr.employees.manager")}</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger className="w-full">
@@ -193,7 +195,7 @@ export function EmployeeForm({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="none">— None —</SelectItem>
+                      <SelectItem value="none">{t("common.none")}</SelectItem>
                       {managerOptions.map((e) => (
                         <SelectItem key={e.id} value={e.id}>
                           {e.name}
@@ -210,7 +212,7 @@ export function EmployeeForm({
               name="hireDate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Hire Date</FormLabel>
+                  <FormLabel>{t("hr.employees.hireDate")}</FormLabel>
                   <FormControl>
                     <Input type="date" {...field} />
                   </FormControl>
@@ -220,7 +222,7 @@ export function EmployeeForm({
             />
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : "Save"}
+                {isSubmitting ? t("common.saving") : t("common.save")}
               </Button>
             </DialogFooter>
           </form>

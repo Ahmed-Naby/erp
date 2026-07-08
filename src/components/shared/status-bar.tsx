@@ -1,16 +1,13 @@
 import { cn } from "@/lib/utils"
-
-function toTitle(status: string) {
-  return status.charAt(0) + status.slice(1).toLowerCase()
-}
+import { getTranslations } from "@/lib/i18n/server"
 
 /**
  * Odoo-style workflow "statusbar" ribbon. Shows the ordered pipeline stages
  * with everything up to and including the current stage highlighted. An
  * off-pipeline terminal state (e.g. CANCELLED) is shown as a single red pill
- * via `exceptionStatus`.
+ * via `exceptionStatus`. Async server component so it can resolve i18n.
  */
-export function StatusBar({
+export async function StatusBar({
   stages,
   current,
   exceptionStatus,
@@ -19,10 +16,12 @@ export function StatusBar({
   current: string
   exceptionStatus?: string
 }) {
+  const { t } = await getTranslations()
+
   if (exceptionStatus && current === exceptionStatus) {
     return (
       <div className="inline-flex items-center rounded-md bg-destructive/10 px-3 py-1 text-xs font-semibold text-destructive ring-1 ring-destructive/20">
-        {toTitle(current)}
+        {t(`status.${current}`)}
       </div>
     )
   }
@@ -48,7 +47,7 @@ export function StatusBar({
                   : "bg-muted text-muted-foreground"
             )}
           >
-            {toTitle(stage)}
+            {t(`status.${stage}`)}
           </div>
         )
       })}

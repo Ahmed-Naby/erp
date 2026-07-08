@@ -23,6 +23,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { useTranslations } from "@/components/i18n/provider"
 import { supplierSchema, type SupplierInput } from "@/lib/validations/purchasing"
 import { createSupplier, updateSupplier } from "@/app/(app)/purchasing/suppliers/actions"
 
@@ -43,6 +44,7 @@ export function SupplierForm({
 }: SupplierFormProps) {
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const t = useTranslations()
 
   const form = useForm<SupplierInput>({
     resolver: zodResolver(supplierSchema),
@@ -60,15 +62,15 @@ export function SupplierForm({
     try {
       if (mode === "edit" && supplierId) {
         await updateSupplier(supplierId, values)
-        toast.success("Supplier updated")
+        toast.success(t("suppliers.toasts.updated"))
       } else {
         await createSupplier(values)
-        toast.success("Supplier created")
+        toast.success(t("suppliers.toasts.created"))
         form.reset()
       }
       setOpen(false)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong")
+      toast.error(err instanceof Error ? err.message : t("common.somethingWrong"))
     } finally {
       setIsSubmitting(false)
     }
@@ -81,11 +83,11 @@ export function SupplierForm({
           <Button variant={triggerVariant} size={mode === "edit" ? "sm" : "default"} />
         }
       >
-        {triggerLabel ?? (mode === "edit" ? "Edit" : "New Supplier")}
+        {triggerLabel ?? (mode === "edit" ? t("common.edit") : t("suppliers.new"))}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{mode === "edit" ? "Edit Supplier" : "New Supplier"}</DialogTitle>
+          <DialogTitle>{mode === "edit" ? t("common.edit") : t("suppliers.new")}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -94,7 +96,7 @@ export function SupplierForm({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>{t("common.name")}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -107,7 +109,7 @@ export function SupplierForm({
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>{t("common.email")}</FormLabel>
                   <FormControl>
                     <Input type="email" {...field} />
                   </FormControl>
@@ -120,7 +122,7 @@ export function SupplierForm({
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone</FormLabel>
+                  <FormLabel>{t("common.phone")}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -133,7 +135,7 @@ export function SupplierForm({
               name="address"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Address</FormLabel>
+                  <FormLabel>{t("common.address")}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -143,7 +145,7 @@ export function SupplierForm({
             />
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : "Save"}
+                {isSubmitting ? t("common.saving") : t("common.save")}
               </Button>
             </DialogFooter>
           </form>

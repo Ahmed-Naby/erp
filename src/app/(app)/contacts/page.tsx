@@ -14,6 +14,7 @@ import { StatusFilter } from "@/components/shared/status-filter"
 import { ViewSwitcher } from "@/components/shared/view-switcher"
 import { KanbanBoard, KanbanColumn, KanbanCard } from "@/components/shared/kanban"
 import { prisma } from "@/lib/prisma"
+import { getTranslations } from "@/lib/i18n/server"
 
 type ContactRow = {
   id: string
@@ -31,6 +32,7 @@ export default async function ContactsPage({
   searchParams: Promise<{ view?: string; kind?: string }>
 }) {
   const { view, kind } = await searchParams
+  const { t } = await getTranslations()
   const activeView = view === "kanban" ? "kanban" : "list"
   const activeKind = kind === "customer" || kind === "vendor" ? kind : undefined
 
@@ -71,24 +73,27 @@ export default async function ContactsPage({
   ].sort((a, b) => a.name.localeCompare(b.name))
 
   const kinds: { key: "customer" | "vendor"; label: string }[] = [
-    { key: "customer", label: "Customers" },
-    { key: "vendor", label: "Vendors" },
+    { key: "customer", label: t("contacts.customers") },
+    { key: "vendor", label: t("contacts.vendors") },
   ]
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Contacts</h1>
-          <p className="text-sm text-muted-foreground">
-            Your unified address book of customers and vendors.
-          </p>
+          <h1 className="text-2xl font-semibold">{t("contacts.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("contacts.subtitle")}</p>
         </div>
         <ContactForm />
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <StatusFilter statuses={["customer", "vendor"]} current={activeKind} paramName="kind" />
+        <StatusFilter
+          statuses={["customer", "vendor"]}
+          current={activeKind}
+          paramName="kind"
+          tPrefix="kind"
+        />
         <ViewSwitcher current={activeView} />
       </div>
 
@@ -110,7 +115,8 @@ export default async function ContactsPage({
                       <p className="mt-1 truncate text-sm text-muted-foreground">{c.email}</p>
                     )}
                     <p className="mt-2 text-xs text-muted-foreground">
-                      {c.phone ?? "No phone"} &middot; {c.docCount} docs
+                      {c.phone ?? t("contacts.noPhone")} &middot;{" "}
+                      {t("contacts.docsCount", { n: c.docCount })}
                     </p>
                   </KanbanCard>
                 ))}
@@ -122,11 +128,11 @@ export default async function ContactsPage({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Phone</TableHead>
-              <TableHead className="text-right">Documents</TableHead>
+              <TableHead>{t("common.name")}</TableHead>
+              <TableHead>{t("common.type")}</TableHead>
+              <TableHead>{t("common.email")}</TableHead>
+              <TableHead>{t("common.phone")}</TableHead>
+              <TableHead className="text-right">{t("contacts.documents")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -142,7 +148,7 @@ export default async function ContactsPage({
                 </TableCell>
                 <TableCell>
                   <Badge variant={c.kind === "customer" ? "default" : "secondary"}>
-                    {c.kind === "customer" ? "Customer" : "Vendor"}
+                    {c.kind === "customer" ? t("kind.customer") : t("kind.vendor")}
                   </Badge>
                 </TableCell>
                 <TableCell>{c.email ?? "—"}</TableCell>
@@ -153,7 +159,7 @@ export default async function ContactsPage({
             {contacts.length === 0 && (
               <TableRow>
                 <TableCell colSpan={5} className="text-center text-muted-foreground">
-                  No contacts yet. Create your first one.
+                  {t("contacts.empty")}
                 </TableCell>
               </TableRow>
             )}

@@ -17,8 +17,10 @@ import {
 } from "@/components/ui/table"
 import { computeTotals } from "@/lib/money"
 import { prisma } from "@/lib/prisma"
+import { getTranslations } from "@/lib/i18n/server"
 
 export default async function DashboardPage() {
+  const { t } = await getTranslations()
   const [
     stockItems,
     openSalesOrders,
@@ -66,21 +68,19 @@ export default async function DashboardPage() {
     .filter((p) => p.totalStock <= p.reorderLevel)
 
   const stats = [
-    { label: "Stock Value", value: stockValue.toFixed(2) },
-    { label: "Open Sales Orders", value: String(openSalesOrders) },
-    { label: "Open Purchase Orders", value: String(openPurchaseOrders) },
-    { label: "Accounts Receivable", value: accountsReceivable.toFixed(2) },
-    { label: "Accounts Payable", value: accountsPayable.toFixed(2) },
-    { label: "Low Stock Items", value: String(lowStockProducts.length) },
+    { label: t("dashboard.stockValue"), value: stockValue.toFixed(2) },
+    { label: t("dashboard.openSalesOrders"), value: String(openSalesOrders) },
+    { label: t("dashboard.openPurchaseOrders"), value: String(openPurchaseOrders) },
+    { label: t("dashboard.accountsReceivable"), value: accountsReceivable.toFixed(2) },
+    { label: t("dashboard.accountsPayable"), value: accountsPayable.toFixed(2) },
+    { label: t("dashboard.lowStockItems"), value: String(lowStockProducts.length) },
   ]
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">
-          Overview of inventory, sales, purchasing and accounting.
-        </p>
+        <h1 className="text-2xl font-semibold">{t("dashboard.title")}</h1>
+        <p className="text-sm text-muted-foreground">{t("dashboard.subtitle")}</p>
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {stats.map((stat) => (
@@ -95,14 +95,14 @@ export default async function DashboardPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Low Stock Alerts</CardTitle>
+          <CardTitle className="text-base">{t("dashboard.lowStockAlerts")}</CardTitle>
         </CardHeader>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Product</TableHead>
-              <TableHead className="text-right">On Hand</TableHead>
-              <TableHead className="text-right">Reorder Level</TableHead>
+              <TableHead>{t("stockMovements.product")}</TableHead>
+              <TableHead className="text-right">{t("dashboard.onHand")}</TableHead>
+              <TableHead className="text-right">{t("dashboard.reorderLevel")}</TableHead>
               <TableHead />
             </TableRow>
           </TableHeader>
@@ -113,14 +113,14 @@ export default async function DashboardPage() {
                 <TableCell className="text-right">{p.totalStock}</TableCell>
                 <TableCell className="text-right">{p.reorderLevel}</TableCell>
                 <TableCell className="text-right">
-                  <Badge variant="destructive">Low</Badge>
+                  <Badge variant="destructive">{t("dashboard.low")}</Badge>
                 </TableCell>
               </TableRow>
             ))}
             {lowStockProducts.length === 0 && (
               <TableRow>
                 <TableCell colSpan={4} className="text-center text-muted-foreground">
-                  No products are below their reorder level.
+                  {t("dashboard.noLowStock")}
                 </TableCell>
               </TableRow>
             )}
@@ -130,19 +130,19 @@ export default async function DashboardPage() {
 
       <div className="flex flex-wrap gap-2 text-sm">
         <Link href="/inventory/products" className="text-muted-foreground hover:underline">
-          View products
+          {t("dashboard.viewProducts")}
         </Link>
         <span className="text-muted-foreground">&middot;</span>
         <Link href="/sales/orders" className="text-muted-foreground hover:underline">
-          View sales orders
+          {t("dashboard.viewSalesOrders")}
         </Link>
         <span className="text-muted-foreground">&middot;</span>
         <Link href="/purchasing/orders" className="text-muted-foreground hover:underline">
-          View purchase orders
+          {t("dashboard.viewPurchaseOrders")}
         </Link>
         <span className="text-muted-foreground">&middot;</span>
         <Link href="/accounting/reports" className="text-muted-foreground hover:underline">
-          View reports
+          {t("dashboard.viewReports")}
         </Link>
       </div>
     </div>

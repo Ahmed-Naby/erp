@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { prisma } from "@/lib/prisma"
+import { getTranslations } from "@/lib/i18n/server"
 
 const actionVariant: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
   CREATE: "default",
@@ -16,6 +17,7 @@ const actionVariant: Record<string, "default" | "secondary" | "destructive" | "o
 }
 
 export default async function AuditLogPage() {
+  const { t } = await getTranslations()
   const entries = await prisma.auditLog.findMany({
     orderBy: { createdAt: "desc" },
     take: 200,
@@ -24,20 +26,18 @@ export default async function AuditLogPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Audit Log</h1>
-        <p className="text-sm text-muted-foreground">
-          Recent user management and financial actions (last 200 entries).
-        </p>
+        <h1 className="text-2xl font-semibold">{t("audit.title")}</h1>
+        <p className="text-sm text-muted-foreground">{t("audit.subtitle")}</p>
       </div>
 
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>When</TableHead>
-            <TableHead>User</TableHead>
-            <TableHead>Action</TableHead>
-            <TableHead>Entity</TableHead>
-            <TableHead>Summary</TableHead>
+            <TableHead>{t("audit.when")}</TableHead>
+            <TableHead>{t("audit.user")}</TableHead>
+            <TableHead>{t("audit.action")}</TableHead>
+            <TableHead>{t("audit.entity")}</TableHead>
+            <TableHead>{t("audit.summary")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -60,7 +60,7 @@ export default async function AuditLogPage() {
           {entries.length === 0 && (
             <TableRow>
               <TableCell colSpan={5} className="text-center text-muted-foreground">
-                No audit entries yet.
+                {t("audit.empty")}
               </TableCell>
             </TableRow>
           )}

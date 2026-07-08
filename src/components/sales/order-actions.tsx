@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
+import { useTranslations } from "@/components/i18n/provider"
 import {
   cancelSalesOrderAction,
   confirmSalesOrderAction,
@@ -14,6 +15,7 @@ import {
 export function OrderActions({ orderId, status }: { orderId: string; status: string }) {
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
+  const t = useTranslations()
 
   function run(action: () => Promise<unknown>, successMessage: string) {
     startTransition(async () => {
@@ -33,25 +35,31 @@ export function OrderActions({ orderId, status }: { orderId: string; status: str
         <>
           <Button
             disabled={isPending}
-            onClick={() => run(() => confirmSalesOrderAction(orderId), "Order confirmed, stock deducted")}
+            onClick={() =>
+              run(() => confirmSalesOrderAction(orderId), t("salesOrders.toasts.confirmed"))
+            }
           >
-            Confirm Order
+            {t("salesOrders.confirm")}
           </Button>
           <Button
             variant="outline"
             disabled={isPending}
-            onClick={() => run(() => cancelSalesOrderAction(orderId), "Order cancelled")}
+            onClick={() =>
+              run(() => cancelSalesOrderAction(orderId), t("salesOrders.toasts.cancelled"))
+            }
           >
-            Cancel
+            {t("common.cancel")}
           </Button>
         </>
       )}
       {status === "CONFIRMED" && (
         <Button
           disabled={isPending}
-          onClick={() => run(() => generateInvoiceAction(orderId), "Invoice generated")}
+          onClick={() =>
+            run(() => generateInvoiceAction(orderId), t("salesOrders.toasts.invoiced"))
+          }
         >
-          Generate Invoice
+          {t("salesOrders.generateInvoice")}
         </Button>
       )}
     </div>

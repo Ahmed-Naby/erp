@@ -5,10 +5,12 @@ import { usePathname, useSearchParams } from "next/navigation"
 import { LayoutGrid, List } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { useTranslations } from "@/components/i18n/provider"
 
 export function ViewSwitcher({ current }: { current: "list" | "kanban" }) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const t = useTranslations()
 
   function hrefFor(view: "list" | "kanban") {
     const params = new URLSearchParams(searchParams.toString())
@@ -23,7 +25,7 @@ export function ViewSwitcher({ current }: { current: "list" | "kanban" }) {
     <div className="inline-flex ring-1 ring-border rounded-md" role="group" aria-label="View">
       <Link
         href={hrefFor("list")}
-        aria-label="List view"
+        aria-label={t("common.list")}
         aria-pressed={current === "list"}
         className={cn(
           base,
@@ -36,7 +38,7 @@ export function ViewSwitcher({ current }: { current: "list" | "kanban" }) {
       </Link>
       <Link
         href={hrefFor("kanban")}
-        aria-label="Kanban view"
+        aria-label={t("common.kanban")}
         aria-pressed={current === "kanban"}
         className={cn(
           base,

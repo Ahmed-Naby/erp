@@ -2,6 +2,7 @@ import { MessageSquare } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { prisma } from "@/lib/prisma"
+import { getTranslations } from "@/lib/i18n/server"
 
 function initials(text: string) {
   const name = text.split("@")[0]
@@ -41,6 +42,7 @@ export async function Chatter({
   createdAt: Date
   createdLabel?: string
 }) {
+  const { t } = await getTranslations()
   const logs = await prisma.auditLog.findMany({
     where: { entityType, entityId },
     orderBy: { createdAt: "desc" },
@@ -56,7 +58,7 @@ export async function Chatter({
 
   entries.push({
     id: "created",
-    user: "System",
+    user: t("chatter.system"),
     summary: createdLabel,
     when: createdAt,
     tone: "bg-muted text-muted-foreground",
@@ -67,9 +69,9 @@ export async function Chatter({
     <div className="rounded-lg border bg-card">
       <div className="flex items-center gap-2 border-b px-4 py-2.5">
         <MessageSquare className="size-4 text-muted-foreground" />
-        <span className="text-sm font-medium">Log</span>
-        <span className="ml-auto text-xs text-muted-foreground">
-          {entries.length} {entries.length === 1 ? "entry" : "entries"}
+        <span className="text-sm font-medium">{t("chatter.log")}</span>
+        <span className="ms-auto text-xs text-muted-foreground">
+          {t("chatter.entries", { n: entries.length })}
         </span>
       </div>
       <ol className="divide-y">

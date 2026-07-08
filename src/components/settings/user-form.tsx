@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useTranslations } from "@/components/i18n/provider"
 import { userSchema, userRoles, type UserInput } from "@/lib/validations/users"
 import { createUser, updateUser } from "@/app/(app)/settings/users/actions"
 
@@ -50,6 +51,7 @@ export function UserForm({
 }: UserFormProps) {
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const t = useTranslations()
 
   const form = useForm<UserInput>({
     resolver: zodResolver(userSchema),
@@ -67,15 +69,15 @@ export function UserForm({
     try {
       if (mode === "edit" && userId) {
         await updateUser(userId, values)
-        toast.success("User updated")
+        toast.success(t("users.toasts.updated"))
       } else {
         await createUser(values)
-        toast.success("User created")
+        toast.success(t("users.toasts.created"))
         form.reset()
       }
       setOpen(false)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong")
+      toast.error(err instanceof Error ? err.message : t("common.somethingWrong"))
     } finally {
       setIsSubmitting(false)
     }
@@ -88,11 +90,11 @@ export function UserForm({
           <Button variant={triggerVariant} size={mode === "edit" ? "sm" : "default"} />
         }
       >
-        {triggerLabel ?? (mode === "edit" ? "Edit" : "New User")}
+        {triggerLabel ?? (mode === "edit" ? t("common.edit") : t("users.new"))}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{mode === "edit" ? "Edit User" : "New User"}</DialogTitle>
+          <DialogTitle>{mode === "edit" ? t("users.edit") : t("users.new")}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -101,7 +103,7 @@ export function UserForm({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>{t("common.name")}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -114,7 +116,7 @@ export function UserForm({
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>{t("common.email")}</FormLabel>
                   <FormControl>
                     <Input type="email" {...field} />
                   </FormControl>
@@ -127,7 +129,7 @@ export function UserForm({
               name="role"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Role</FormLabel>
+                  <FormLabel>{t("common.role")}</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger className="w-full">
@@ -152,7 +154,7 @@ export function UserForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    {mode === "edit" ? "New Password (leave blank to keep current)" : "Password"}
+                    {mode === "edit" ? t("users.newPassword") : t("users.password")}
                   </FormLabel>
                   <FormControl>
                     <Input type="password" {...field} />
@@ -163,7 +165,7 @@ export function UserForm({
             />
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : "Save"}
+                {isSubmitting ? t("common.saving") : t("common.save")}
               </Button>
             </DialogFooter>
           </form>

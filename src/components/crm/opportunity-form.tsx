@@ -33,6 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useTranslations } from "@/components/i18n/provider"
 import { opportunitySchema, type OpportunityInput } from "@/lib/validations/crm"
 import { createOpportunity, updateOpportunity } from "@/app/(app)/crm/actions"
 
@@ -56,6 +57,7 @@ export function OpportunityForm({
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
+  const t = useTranslations()
 
   const form = useForm<z.input<typeof opportunitySchema>, unknown, OpportunityInput>({
     resolver: zodResolver(opportunitySchema),
@@ -73,16 +75,16 @@ export function OpportunityForm({
     try {
       if (mode === "edit" && opportunityId) {
         await updateOpportunity(opportunityId, values)
-        toast.success("Opportunity updated")
+        toast.success(t("crm.toasts.updated"))
       } else {
         await createOpportunity(values)
-        toast.success("Opportunity created")
+        toast.success(t("crm.toasts.created"))
         form.reset()
       }
       setOpen(false)
       router.refresh()
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong")
+      toast.error(err instanceof Error ? err.message : t("common.somethingWrong"))
     } finally {
       setIsSubmitting(false)
     }
@@ -93,11 +95,11 @@ export function OpportunityForm({
       <DialogTrigger
         render={<Button variant={triggerVariant} size={mode === "edit" ? "sm" : "default"} />}
       >
-        {mode === "edit" ? "Edit" : "New Opportunity"}
+        {mode === "edit" ? t("common.edit") : t("crm.new")}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{mode === "edit" ? "Edit Opportunity" : "New Opportunity"}</DialogTitle>
+          <DialogTitle>{mode === "edit" ? t("crm.edit") : t("crm.new")}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -106,7 +108,7 @@ export function OpportunityForm({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>{t("crm.crmTitle")}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -119,7 +121,7 @@ export function OpportunityForm({
               name="customerId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Customer</FormLabel>
+                  <FormLabel>{t("crm.customer")}</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger className="w-full">
@@ -127,7 +129,7 @@ export function OpportunityForm({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="none">— None —</SelectItem>
+                      <SelectItem value="none">{t("common.none")}</SelectItem>
                       {customers.map((c) => (
                         <SelectItem key={c.id} value={c.id}>
                           {c.name}
@@ -144,7 +146,7 @@ export function OpportunityForm({
               name="expectedRevenue"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Expected Revenue</FormLabel>
+                  <FormLabel>{t("crm.expectedRevenue")}</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -163,7 +165,7 @@ export function OpportunityForm({
               name="notes"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Notes</FormLabel>
+                  <FormLabel>{t("common.notes")}</FormLabel>
                   <FormControl>
                     <Textarea {...field} />
                   </FormControl>
@@ -173,7 +175,7 @@ export function OpportunityForm({
             />
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : "Save"}
+                {isSubmitting ? t("common.saving") : t("common.save")}
               </Button>
             </DialogFooter>
           </form>

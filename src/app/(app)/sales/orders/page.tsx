@@ -15,6 +15,7 @@ import { ViewSwitcher } from "@/components/shared/view-switcher"
 import { KanbanBoard, KanbanColumn, KanbanCard } from "@/components/shared/kanban"
 import { computeTotals } from "@/lib/money"
 import { prisma } from "@/lib/prisma"
+import { getTranslations } from "@/lib/i18n/server"
 
 const STATUSES = ["DRAFT", "CONFIRMED", "INVOICED", "CANCELLED"]
 
@@ -38,6 +39,7 @@ export default async function SalesOrdersPage({
   searchParams: Promise<{ view?: string; status?: string }>
 }) {
   const { view, status } = await searchParams
+  const { t } = await getTranslations()
   const activeView = view === "kanban" ? "kanban" : "list"
   const activeStatus = status && STATUSES.includes(status) ? status : undefined
 
@@ -54,11 +56,11 @@ export default async function SalesOrdersPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Sales Orders</h1>
-          <p className="text-sm text-muted-foreground">Orders placed by customers.</p>
+          <h1 className="text-2xl font-semibold">{t("salesOrders.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("salesOrders.subtitle")}</p>
         </div>
         <Button nativeButton={false} render={<Link href="/sales/orders/new" />}>
-          New Order
+          {t("salesOrders.new")}
         </Button>
       </div>
 
@@ -72,7 +74,7 @@ export default async function SalesOrdersPage({
           {STATUSES.map((s) => {
             const items = orders.filter((o) => o.status === s)
             return (
-              <KanbanColumn key={s} title={s.charAt(0) + s.slice(1).toLowerCase()} count={items.length} accent={statusAccent[s]}>
+              <KanbanColumn key={s} title={t(`status.${s}`)} count={items.length} accent={statusAccent[s]}>
                 {items.map((o) => (
                   <KanbanCard key={o.id} href={`/sales/orders/${o.id}`}>
                     <div className="flex items-center justify-between gap-2">
@@ -83,7 +85,8 @@ export default async function SalesOrdersPage({
                     </div>
                     <p className="mt-1 truncate text-sm text-muted-foreground">{o.customer.name}</p>
                     <p className="mt-2 text-xs text-muted-foreground">
-                      {o.orderDate.toLocaleDateString()} &middot; {o.lines.length} lines
+                      {o.orderDate.toLocaleDateString()} &middot;{" "}
+                      {t("salesOrders.linesCount", { n: o.lines.length })}
                     </p>
                   </KanbanCard>
                 ))}
@@ -95,12 +98,12 @@ export default async function SalesOrdersPage({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Order #</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Lines</TableHead>
-              <TableHead className="text-right">Total</TableHead>
-              <TableHead>Date</TableHead>
+              <TableHead>{t("salesOrders.orderNumber")}</TableHead>
+              <TableHead>{t("salesOrders.customer")}</TableHead>
+              <TableHead>{t("common.status")}</TableHead>
+              <TableHead className="text-right">{t("salesOrders.lines")}</TableHead>
+              <TableHead className="text-right">{t("common.total")}</TableHead>
+              <TableHead>{t("common.date")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -113,7 +116,9 @@ export default async function SalesOrdersPage({
                 </TableCell>
                 <TableCell>{o.customer.name}</TableCell>
                 <TableCell>
-                  <Badge variant={statusVariant[o.status] ?? "outline"}>{o.status}</Badge>
+                  <Badge variant={statusVariant[o.status] ?? "outline"}>
+                    {t(`status.${o.status}`)}
+                  </Badge>
                 </TableCell>
                 <TableCell className="text-right">{o.lines.length}</TableCell>
                 <TableCell className="text-right">{totalFor(o.lines).toFixed(2)}</TableCell>
@@ -125,9 +130,7 @@ export default async function SalesOrdersPage({
             {orders.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} className="text-center text-muted-foreground">
-                  {activeStatus
-                    ? "No orders with this status."
-                    : "No sales orders yet. Create your first one."}
+                  {activeStatus ? t("salesOrders.emptyStatus") : t("salesOrders.empty")}
                 </TableCell>
               </TableRow>
             )}

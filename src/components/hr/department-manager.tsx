@@ -14,12 +14,14 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { useTranslations } from "@/components/i18n/provider"
 import { departmentSchema, type DepartmentInput } from "@/lib/validations/hr"
 import { createDepartment, deleteDepartment } from "@/app/(app)/hr/departments/actions"
 
 type Department = { id: string; name: string; count: number }
 
 export function DepartmentManager({ departments }: { departments: Department[] }) {
+  const t = useTranslations()
   const form = useForm<DepartmentInput>({
     resolver: zodResolver(departmentSchema),
     defaultValues: { name: "" },
@@ -28,19 +30,19 @@ export function DepartmentManager({ departments }: { departments: Department[] }
   async function onSubmit(values: DepartmentInput) {
     try {
       await createDepartment(values)
-      toast.success("Department created")
+      toast.success(t("hr.departments.toasts.created"))
       form.reset()
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong")
+      toast.error(err instanceof Error ? err.message : t("common.somethingWrong"))
     }
   }
 
   async function onDelete(id: string) {
     try {
       await deleteDepartment(id)
-      toast.success("Department deleted")
+      toast.success(t("hr.departments.toasts.deleted"))
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong")
+      toast.error(err instanceof Error ? err.message : t("common.somethingWrong"))
     }
   }
 
@@ -54,18 +56,18 @@ export function DepartmentManager({ departments }: { departments: Department[] }
             render={({ field }) => (
               <FormItem className="flex-1">
                 <FormControl>
-                  <Input placeholder="New department" {...field} />
+                  <Input placeholder={t("hr.departments.new")} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button type="submit">Add</Button>
+          <Button type="submit">{t("common.add")}</Button>
         </form>
       </Form>
       <div className="space-y-1">
         {departments.length === 0 && (
-          <p className="text-sm text-muted-foreground">No departments yet.</p>
+          <p className="text-sm text-muted-foreground">{t("hr.departments.empty")}</p>
         )}
         {departments.map((d) => (
           <div
@@ -74,8 +76,8 @@ export function DepartmentManager({ departments }: { departments: Department[] }
           >
             <span>
               {d.name}
-              <span className="ml-2 text-xs text-muted-foreground">
-                {d.count} {d.count === 1 ? "employee" : "employees"}
+              <span className="ms-2 text-xs text-muted-foreground">
+                {t("hr.departments.employeeCount", { n: d.count })}
               </span>
             </span>
             <Button variant="ghost" size="icon-sm" onClick={() => onDelete(d.id)}>

@@ -4,6 +4,7 @@ import { useTransition } from "react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
+import { useTranslations } from "@/components/i18n/provider"
 import { toggleProductActive } from "@/app/(app)/inventory/products/actions"
 
 export function ProductActiveToggle({
@@ -14,6 +15,7 @@ export function ProductActiveToggle({
   active: boolean
 }) {
   const [isPending, startTransition] = useTransition()
+  const t = useTranslations()
 
   return (
     <Button
@@ -24,14 +26,14 @@ export function ProductActiveToggle({
         startTransition(async () => {
           try {
             await toggleProductActive(id, !active)
-            toast.success(active ? "Product deactivated" : "Product activated")
+            toast.success(active ? t("products.toasts.deactivated") : t("products.toasts.activated"))
           } catch (err) {
-            toast.error(err instanceof Error ? err.message : "Something went wrong")
+            toast.error(err instanceof Error ? err.message : t("common.somethingWrong"))
           }
         })
       }
     >
-      {active ? "Deactivate" : "Activate"}
+      {active ? t("users.deactivate") : t("users.activate")}
     </Button>
   )
 }

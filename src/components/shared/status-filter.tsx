@@ -4,22 +4,22 @@ import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 
 import { cn } from "@/lib/utils"
-
-function toTitle(status: string) {
-  return status.charAt(0) + status.slice(1).toLowerCase()
-}
+import { useTranslations } from "@/components/i18n/provider"
 
 export function StatusFilter({
   statuses,
   current,
   paramName = "status",
+  tPrefix = "status",
 }: {
   statuses: string[]
   current?: string
   paramName?: string
+  tPrefix?: string
 }) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const t = useTranslations()
 
   function hrefFor(status?: string) {
     const params = new URLSearchParams(searchParams.toString())
@@ -42,7 +42,7 @@ export function StatusFilter({
             : "bg-muted text-muted-foreground hover:bg-muted/70"
         )}
       >
-        All
+        {t("common.all")}
       </Link>
       {statuses.map((status) => (
         <Link
@@ -55,7 +55,7 @@ export function StatusFilter({
               : "bg-muted text-muted-foreground hover:bg-muted/70"
           )}
         >
-          {toTitle(status)}
+          {t(`${tPrefix}.${status}`)}
         </Link>
       ))}
     </div>

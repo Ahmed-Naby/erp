@@ -15,6 +15,7 @@ import { ViewSwitcher } from "@/components/shared/view-switcher"
 import { KanbanBoard, KanbanColumn, KanbanCard } from "@/components/shared/kanban"
 import { crmStages } from "@/lib/validations/crm"
 import { prisma } from "@/lib/prisma"
+import { getTranslations } from "@/lib/i18n/server"
 
 const stageAccent: Record<string, string> = {
   NEW: "bg-slate-400",
@@ -32,16 +33,13 @@ const stageVariant: Record<string, "default" | "secondary" | "outline" | "destru
   LOST: "destructive",
 }
 
-function toTitle(status: string) {
-  return status.charAt(0) + status.slice(1).toLowerCase()
-}
-
 export default async function CrmPage({
   searchParams,
 }: {
   searchParams: Promise<{ view?: string; stage?: string }>
 }) {
   const { view, stage } = await searchParams
+  const { t } = await getTranslations()
   const activeView = view === "list" ? "list" : "kanban"
   const activeStage =
     stage && (crmStages as readonly string[]).includes(stage) ? stage : undefined
@@ -59,8 +57,8 @@ export default async function CrmPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">CRM Pipeline</h1>
-          <p className="text-sm text-muted-foreground">Track leads and opportunities.</p>
+          <h1 className="text-2xl font-semibold">{t("crm.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("crm.subtitle")}</p>
         </div>
         <OpportunityForm customers={customers} />
       </div>
@@ -78,7 +76,7 @@ export default async function CrmPage({
             return (
               <KanbanColumn
                 key={s}
-                title={`${toTitle(s)} · ${total.toFixed(0)}`}
+                title={`${t(`status.${s}`)} · ${total.toFixed(0)}`}
                 count={items.length}
                 accent={stageAccent[s]}
               >
@@ -86,10 +84,10 @@ export default async function CrmPage({
                   <KanbanCard key={o.id} href={`/crm/${o.id}`}>
                     <div className="font-medium">{o.name}</div>
                     <p className="mt-1 truncate text-sm text-muted-foreground">
-                      {o.customer?.name ?? "No customer"}
+                      {o.customer?.name ?? t("crm.noCustomer")}
                     </p>
                     <p className="mt-2 text-xs text-muted-foreground">
-                      {o.expectedRevenue.toFixed(2)} &middot; {o.owner?.name ?? "Unassigned"}
+                      {o.expectedRevenue.toFixed(2)} &middot; {o.owner?.name ?? t("crm.unassigned")}
                     </p>
                   </KanbanCard>
                 ))}
@@ -101,11 +99,11 @@ export default async function CrmPage({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Opportunity</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Stage</TableHead>
-              <TableHead className="text-right">Expected Revenue</TableHead>
-              <TableHead>Owner</TableHead>
+              <TableHead>{t("crm.opportunity")}</TableHead>
+              <TableHead>{t("crm.customer")}</TableHead>
+              <TableHead>{t("crm.stage")}</TableHead>
+              <TableHead className="text-right">{t("crm.expectedRevenue")}</TableHead>
+              <TableHead>{t("crm.owner")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -118,7 +116,7 @@ export default async function CrmPage({
                 </TableCell>
                 <TableCell>{o.customer?.name ?? "—"}</TableCell>
                 <TableCell>
-                  <Badge variant={stageVariant[o.stage] ?? "outline"}>{o.stage}</Badge>
+                  <Badge variant={stageVariant[o.stage] ?? "outline"}>{t(`status.${o.stage}`)}</Badge>
                 </TableCell>
                 <TableCell className="text-right">{o.expectedRevenue.toFixed(2)}</TableCell>
                 <TableCell>{o.owner?.name ?? "—"}</TableCell>
@@ -127,7 +125,7 @@ export default async function CrmPage({
             {opportunities.length === 0 && (
               <TableRow>
                 <TableCell colSpan={5} className="text-center text-muted-foreground">
-                  {activeStage ? "No opportunities in this stage." : "No opportunities yet."}
+                  {activeStage ? t("crm.emptyStage") : t("crm.empty")}
                 </TableCell>
               </TableRow>
             )}

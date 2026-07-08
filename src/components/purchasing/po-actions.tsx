@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
+import { useTranslations } from "@/components/i18n/provider"
 import {
   cancelPurchaseOrderAction,
   receivePurchaseOrderAction,
@@ -14,6 +15,7 @@ import {
 export function PoActions({ orderId, status }: { orderId: string; status: string }) {
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
+  const t = useTranslations()
 
   function run(action: () => Promise<unknown>, successMessage: string) {
     startTransition(async () => {
@@ -33,16 +35,20 @@ export function PoActions({ orderId, status }: { orderId: string; status: string
         <>
           <Button
             disabled={isPending}
-            onClick={() => run(() => sendPurchaseOrderAction(orderId), "Order sent")}
+            onClick={() =>
+              run(() => sendPurchaseOrderAction(orderId), t("purchaseOrders.toasts.sent"))
+            }
           >
-            Send Order
+            {t("purchaseOrders.send")}
           </Button>
           <Button
             variant="outline"
             disabled={isPending}
-            onClick={() => run(() => cancelPurchaseOrderAction(orderId), "Order cancelled")}
+            onClick={() =>
+              run(() => cancelPurchaseOrderAction(orderId), t("purchaseOrders.toasts.cancelled"))
+            }
           >
-            Cancel
+            {t("common.cancel")}
           </Button>
         </>
       )}
@@ -50,16 +56,20 @@ export function PoActions({ orderId, status }: { orderId: string; status: string
         <>
           <Button
             disabled={isPending}
-            onClick={() => run(() => receivePurchaseOrderAction(orderId), "Order received, stock updated")}
+            onClick={() =>
+              run(() => receivePurchaseOrderAction(orderId), t("purchaseOrders.toasts.received"))
+            }
           >
-            Receive Order
+            {t("purchaseOrders.receive")}
           </Button>
           <Button
             variant="outline"
             disabled={isPending}
-            onClick={() => run(() => cancelPurchaseOrderAction(orderId), "Order cancelled")}
+            onClick={() =>
+              run(() => cancelPurchaseOrderAction(orderId), t("purchaseOrders.toasts.cancelled"))
+            }
           >
-            Cancel
+            {t("common.cancel")}
           </Button>
         </>
       )}
