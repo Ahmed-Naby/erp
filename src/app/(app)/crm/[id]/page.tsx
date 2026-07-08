@@ -7,6 +7,7 @@ import { OpportunityForm } from "@/components/crm/opportunity-form"
 import { StatusBar } from "@/components/shared/status-bar"
 import { Chatter } from "@/components/shared/chatter"
 import { prisma } from "@/lib/prisma"
+import { getTranslations } from "@/lib/i18n/server"
 
 export default async function OpportunityDetailPage({
   params,
@@ -14,6 +15,7 @@ export default async function OpportunityDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
+  const { t } = await getTranslations()
   const opportunity = await prisma.opportunity.findUnique({
     where: { id },
     include: { customer: true, owner: true },
@@ -31,7 +33,7 @@ export default async function OpportunityDetailPage({
         <div>
           <h1 className="text-2xl font-semibold">{opportunity.name}</h1>
           <p className="text-sm text-muted-foreground">
-            {opportunity.customer?.name ?? "No customer"} &middot;{" "}
+            {opportunity.customer?.name ?? t("crm.noCustomer")} &middot;{" "}
             {opportunity.expectedRevenue.toFixed(2)}
           </p>
         </div>
@@ -63,11 +65,11 @@ export default async function OpportunityDetailPage({
         <div className="space-y-6 lg:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle>Details</CardTitle>
+              <CardTitle>{t("common.details")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
               <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground">Customer</span>
+                <span className="text-muted-foreground">{t("crm.customer")}</span>
                 <span className="text-right">
                   {opportunity.customer ? (
                     <Link
@@ -82,11 +84,11 @@ export default async function OpportunityDetailPage({
                 </span>
               </div>
               <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground">Expected Revenue</span>
+                <span className="text-muted-foreground">{t("crm.expectedRevenue")}</span>
                 <span className="text-right">{opportunity.expectedRevenue.toFixed(2)}</span>
               </div>
               <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground">Owner</span>
+                <span className="text-muted-foreground">{t("crm.owner")}</span>
                 <span className="text-right">{opportunity.owner?.name ?? "—"}</span>
               </div>
             </CardContent>
@@ -95,7 +97,7 @@ export default async function OpportunityDetailPage({
           {opportunity.notes && (
             <Card>
               <CardHeader>
-                <CardTitle>Notes</CardTitle>
+                <CardTitle>{t("common.notes")}</CardTitle>
               </CardHeader>
               <CardContent className="text-sm text-muted-foreground">
                 {opportunity.notes}
@@ -109,7 +111,7 @@ export default async function OpportunityDetailPage({
             entityType="Opportunity"
             entityId={opportunity.id}
             createdAt={opportunity.createdAt}
-            createdLabel={`Opportunity "${opportunity.name}" created`}
+            createdLabel={t("crm.createdLabel", { name: opportunity.name })}
           />
         </div>
       </div>

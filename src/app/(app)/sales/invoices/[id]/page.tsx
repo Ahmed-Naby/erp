@@ -15,6 +15,7 @@ import { PrintButton } from "@/components/shared/print-button"
 import { StatusBar } from "@/components/shared/status-bar"
 import { Chatter } from "@/components/shared/chatter"
 import { prisma } from "@/lib/prisma"
+import { getTranslations } from "@/lib/i18n/server"
 
 export default async function InvoiceDetailPage({
   params,
@@ -22,6 +23,7 @@ export default async function InvoiceDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
+  const { t } = await getTranslations()
   const invoice = await prisma.invoice.findUnique({
     where: { id },
     include: {
@@ -46,7 +48,7 @@ export default async function InvoiceDetailPage({
             <Link href={`/sales/orders/${invoice.salesOrderId}`} className="hover:underline">
               {invoice.salesOrder.orderNumber}
             </Link>{" "}
-            &middot; Issued {invoice.issuedAt.toLocaleDateString()}
+            &middot; {t("invoices.issued")} {invoice.issuedAt.toLocaleDateString()}
           </p>
         </div>
         <div className="flex flex-col items-start gap-2 sm:items-end">
@@ -66,17 +68,17 @@ export default async function InvoiceDetailPage({
         <div className="space-y-6 lg:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle>Line Items</CardTitle>
+              <CardTitle>{t("salesOrders.lineItems")}</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Product</TableHead>
-                    <TableHead className="text-right">Quantity</TableHead>
-                    <TableHead className="text-right">Unit Price</TableHead>
-                    <TableHead className="text-right">Tax %</TableHead>
-                    <TableHead className="text-right">Line Total</TableHead>
+                    <TableHead>{t("stockMovements.product")}</TableHead>
+                    <TableHead className="text-right">{t("common.quantity")}</TableHead>
+                    <TableHead className="text-right">{t("salesOrders.unitPrice")}</TableHead>
+                    <TableHead className="text-right">{t("products.taxRate")}</TableHead>
+                    <TableHead className="text-right">{t("salesOrders.lineTotal")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -95,7 +97,7 @@ export default async function InvoiceDetailPage({
                   })}
                   <TableRow>
                     <TableCell colSpan={4} className="text-right text-muted-foreground">
-                      Subtotal
+                      {t("common.subtotal")}
                     </TableCell>
                     <TableCell className="text-right text-muted-foreground">
                       {subtotal.toFixed(2)}
@@ -103,7 +105,7 @@ export default async function InvoiceDetailPage({
                   </TableRow>
                   <TableRow>
                     <TableCell colSpan={4} className="text-right text-muted-foreground">
-                      Tax
+                      {t("common.tax")}
                     </TableCell>
                     <TableCell className="text-right text-muted-foreground">
                       {invoice.taxAmount.toFixed(2)}
@@ -111,7 +113,7 @@ export default async function InvoiceDetailPage({
                   </TableRow>
                   <TableRow>
                     <TableCell colSpan={4} className="text-right font-medium">
-                      Total
+                      {t("common.total")}
                     </TableCell>
                     <TableCell className="text-right font-medium">
                       {invoice.totalAmount.toFixed(2)}
@@ -124,27 +126,30 @@ export default async function InvoiceDetailPage({
 
           <Card>
             <CardHeader>
-              <CardTitle>Payment Status</CardTitle>
+              <CardTitle>{t("invoices.paymentStatus")}</CardTitle>
             </CardHeader>
             <CardContent className="text-sm">
-              Paid {invoice.paidAmount.toFixed(2)} of {invoice.totalAmount.toFixed(2)} &middot; Due{" "}
-              {due.toFixed(2)}
+              {t("invoices.paidOf", {
+                paid: invoice.paidAmount.toFixed(2),
+                total: invoice.totalAmount.toFixed(2),
+                due: due.toFixed(2),
+              })}
             </CardContent>
           </Card>
 
           {invoice.payments.length > 0 && (
             <Card className="print:hidden">
               <CardHeader>
-                <CardTitle>Payments</CardTitle>
+                <CardTitle>{t("invoices.payments")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Payment #</TableHead>
-                      <TableHead>Method</TableHead>
-                      <TableHead className="text-right">Amount</TableHead>
-                      <TableHead>Date</TableHead>
+                      <TableHead>{t("invoices.paymentNumber")}</TableHead>
+                      <TableHead>{t("invoices.method")}</TableHead>
+                      <TableHead className="text-right">{t("invoices.amount")}</TableHead>
+                      <TableHead>{t("common.date")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -170,7 +175,7 @@ export default async function InvoiceDetailPage({
             entityType="Invoice"
             entityId={invoice.id}
             createdAt={invoice.createdAt}
-            createdLabel={`Invoice ${invoice.invoiceNumber} created`}
+            createdLabel={t("invoices.createdLabel", { number: invoice.invoiceNumber })}
           />
         </div>
       </div>

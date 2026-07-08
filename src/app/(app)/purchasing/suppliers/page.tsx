@@ -8,8 +8,10 @@ import {
 } from "@/components/ui/table"
 import { SupplierForm } from "@/components/purchasing/supplier-form"
 import { prisma } from "@/lib/prisma"
+import { getTranslations } from "@/lib/i18n/server"
 
 export default async function SuppliersPage() {
+  const { t } = await getTranslations()
   const suppliers = await prisma.supplier.findMany({
     include: { _count: { select: { purchaseOrders: true } } },
     orderBy: { name: "asc" },
@@ -19,10 +21,8 @@ export default async function SuppliersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Suppliers</h1>
-          <p className="text-sm text-muted-foreground">
-            Vendors and companies you buy from.
-          </p>
+          <h1 className="text-2xl font-semibold">{t("suppliers.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("suppliers.subtitle")}</p>
         </div>
         <SupplierForm />
       </div>
@@ -30,11 +30,11 @@ export default async function SuppliersPage() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Phone</TableHead>
-            <TableHead className="text-right">Orders</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead>{t("common.name")}</TableHead>
+            <TableHead>{t("common.email")}</TableHead>
+            <TableHead>{t("common.phone")}</TableHead>
+            <TableHead className="text-right">{t("suppliers.orders")}</TableHead>
+            <TableHead className="text-right">{t("common.actions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -61,7 +61,7 @@ export default async function SuppliersPage() {
           {suppliers.length === 0 && (
             <TableRow>
               <TableCell colSpan={5} className="text-center text-muted-foreground">
-                No suppliers yet. Create your first one.
+                {t("suppliers.empty")}
               </TableCell>
             </TableRow>
           )}

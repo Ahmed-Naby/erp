@@ -21,6 +21,7 @@ import { StatusBar } from "@/components/shared/status-bar"
 import { Chatter } from "@/components/shared/chatter"
 import { computeTotals } from "@/lib/money"
 import { prisma } from "@/lib/prisma"
+import { getTranslations } from "@/lib/i18n/server"
 
 export default async function SalesOrderDetailPage({
   params,
@@ -28,6 +29,7 @@ export default async function SalesOrderDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
+  const { t } = await getTranslations()
   const order = await prisma.salesOrder.findUnique({
     where: { id },
     include: {
@@ -67,7 +69,7 @@ export default async function SalesOrderDetailPage({
                 nativeButton={false}
                 render={<Link href={`/sales/orders/${order.id}/edit`} />}
               >
-                Edit
+                {t("common.edit")}
               </Button>
             )}
             <OrderActions orderId={order.id} status={order.status} />
@@ -80,30 +82,31 @@ export default async function SalesOrderDetailPage({
           {order.invoice && (
             <Card>
               <CardHeader>
-                <CardTitle>Invoice</CardTitle>
+                <CardTitle>{t("salesOrders.invoice")}</CardTitle>
               </CardHeader>
               <CardContent className="text-sm">
                 <Link href={`/sales/invoices/${order.invoice.id}`} className="hover:underline">
                   {order.invoice.invoiceNumber}
                 </Link>{" "}
-                &middot; {order.invoice.status} &middot; {order.invoice.totalAmount.toFixed(2)}
+                &middot; {t(`status.${order.invoice.status}`)} &middot;{" "}
+                {order.invoice.totalAmount.toFixed(2)}
               </CardContent>
             </Card>
           )}
 
           <Card>
             <CardHeader>
-              <CardTitle>Line Items</CardTitle>
+              <CardTitle>{t("salesOrders.lineItems")}</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Product</TableHead>
-                    <TableHead className="text-right">Quantity</TableHead>
-                    <TableHead className="text-right">Unit Price</TableHead>
-                    <TableHead className="text-right">Tax %</TableHead>
-                    <TableHead className="text-right">Line Total</TableHead>
+                    <TableHead>{t("stockMovements.product")}</TableHead>
+                    <TableHead className="text-right">{t("common.quantity")}</TableHead>
+                    <TableHead className="text-right">{t("salesOrders.unitPrice")}</TableHead>
+                    <TableHead className="text-right">{t("products.taxRate")}</TableHead>
+                    <TableHead className="text-right">{t("salesOrders.lineTotal")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -123,7 +126,7 @@ export default async function SalesOrderDetailPage({
                   })}
                   <TableRow>
                     <TableCell colSpan={4} className="text-right text-muted-foreground">
-                      Subtotal
+                      {t("common.subtotal")}
                     </TableCell>
                     <TableCell className="text-right text-muted-foreground">
                       {subtotal.toFixed(2)}
@@ -131,7 +134,7 @@ export default async function SalesOrderDetailPage({
                   </TableRow>
                   <TableRow>
                     <TableCell colSpan={4} className="text-right text-muted-foreground">
-                      Tax
+                      {t("common.tax")}
                     </TableCell>
                     <TableCell className="text-right text-muted-foreground">
                       {tax.toFixed(2)}
@@ -139,7 +142,7 @@ export default async function SalesOrderDetailPage({
                   </TableRow>
                   <TableRow>
                     <TableCell colSpan={4} className="text-right font-medium">
-                      Total
+                      {t("common.total")}
                     </TableCell>
                     <TableCell className="text-right font-medium">{total.toFixed(2)}</TableCell>
                   </TableRow>
@@ -151,7 +154,7 @@ export default async function SalesOrderDetailPage({
           {order.notes && (
             <Card>
               <CardHeader>
-                <CardTitle>Notes</CardTitle>
+                <CardTitle>{t("common.notes")}</CardTitle>
               </CardHeader>
               <CardContent className="text-sm text-muted-foreground">{order.notes}</CardContent>
             </Card>
@@ -163,7 +166,7 @@ export default async function SalesOrderDetailPage({
             entityType="SalesOrder"
             entityId={order.id}
             createdAt={order.createdAt}
-            createdLabel={`Sales order ${order.orderNumber} created`}
+            createdLabel={t("salesOrders.createdLabel", { number: order.orderNumber })}
           />
         </div>
       </div>

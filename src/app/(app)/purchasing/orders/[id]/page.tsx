@@ -23,6 +23,7 @@ import { StatusBar } from "@/components/shared/status-bar"
 import { Chatter } from "@/components/shared/chatter"
 import { computeTotals } from "@/lib/money"
 import { prisma } from "@/lib/prisma"
+import { getTranslations } from "@/lib/i18n/server"
 
 export default async function PurchaseOrderDetailPage({
   params,
@@ -30,6 +31,7 @@ export default async function PurchaseOrderDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
+  const { t } = await getTranslations()
   const order = await prisma.purchaseOrder.findUnique({
     where: { id },
     include: {
@@ -71,7 +73,7 @@ export default async function PurchaseOrderDetailPage({
                   nativeButton={false}
                   render={<Link href={`/purchasing/orders/${order.id}/edit`} />}
                 >
-                  Edit
+                  {t("common.edit")}
                 </Button>
               )}
               {order.status === "RECEIVED" && (
@@ -88,28 +90,31 @@ export default async function PurchaseOrderDetailPage({
           {order.status === "RECEIVED" && (
             <Card>
               <CardHeader>
-                <CardTitle>Payment Status</CardTitle>
+                <CardTitle>{t("invoices.paymentStatus")}</CardTitle>
               </CardHeader>
               <CardContent className="text-sm">
-                Paid {order.paidAmount.toFixed(2)} of {total.toFixed(2)} &middot; Due{" "}
-                {due.toFixed(2)}
+                {t("invoices.paidOf", {
+                  paid: order.paidAmount.toFixed(2),
+                  total: total.toFixed(2),
+                  due: due.toFixed(2),
+                })}
               </CardContent>
             </Card>
           )}
 
           <Card>
             <CardHeader>
-              <CardTitle>Line Items</CardTitle>
+              <CardTitle>{t("purchaseOrders.lineItems")}</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Product</TableHead>
-                    <TableHead className="text-right">Quantity</TableHead>
-                    <TableHead className="text-right">Unit Cost</TableHead>
-                    <TableHead className="text-right">Tax %</TableHead>
-                    <TableHead className="text-right">Line Total</TableHead>
+                    <TableHead>{t("stockMovements.product")}</TableHead>
+                    <TableHead className="text-right">{t("common.quantity")}</TableHead>
+                    <TableHead className="text-right">{t("purchaseOrders.unitCost")}</TableHead>
+                    <TableHead className="text-right">{t("products.taxRate")}</TableHead>
+                    <TableHead className="text-right">{t("purchaseOrders.lineTotal")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -129,7 +134,7 @@ export default async function PurchaseOrderDetailPage({
                   })}
                   <TableRow>
                     <TableCell colSpan={4} className="text-right text-muted-foreground">
-                      Subtotal
+                      {t("common.subtotal")}
                     </TableCell>
                     <TableCell className="text-right text-muted-foreground">
                       {subtotal.toFixed(2)}
@@ -137,7 +142,7 @@ export default async function PurchaseOrderDetailPage({
                   </TableRow>
                   <TableRow>
                     <TableCell colSpan={4} className="text-right text-muted-foreground">
-                      Tax
+                      {t("common.tax")}
                     </TableCell>
                     <TableCell className="text-right text-muted-foreground">
                       {tax.toFixed(2)}
@@ -145,7 +150,7 @@ export default async function PurchaseOrderDetailPage({
                   </TableRow>
                   <TableRow>
                     <TableCell colSpan={4} className="text-right font-medium">
-                      Total
+                      {t("common.total")}
                     </TableCell>
                     <TableCell className="text-right font-medium">{total.toFixed(2)}</TableCell>
                   </TableRow>
@@ -157,7 +162,7 @@ export default async function PurchaseOrderDetailPage({
           {order.notes && (
             <Card>
               <CardHeader>
-                <CardTitle>Notes</CardTitle>
+                <CardTitle>{t("common.notes")}</CardTitle>
               </CardHeader>
               <CardContent className="text-sm text-muted-foreground">{order.notes}</CardContent>
             </Card>
@@ -169,7 +174,7 @@ export default async function PurchaseOrderDetailPage({
             entityType="PurchaseOrder"
             entityId={order.id}
             createdAt={order.createdAt}
-            createdLabel={`Purchase order ${order.poNumber} created`}
+            createdLabel={t("purchaseOrders.createdLabel", { number: order.poNumber })}
           />
         </div>
       </div>

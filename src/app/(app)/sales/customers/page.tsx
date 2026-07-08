@@ -8,8 +8,10 @@ import {
 } from "@/components/ui/table"
 import { CustomerForm } from "@/components/sales/customer-form"
 import { prisma } from "@/lib/prisma"
+import { getTranslations } from "@/lib/i18n/server"
 
 export default async function CustomersPage() {
+  const { t } = await getTranslations()
   const customers = await prisma.customer.findMany({
     include: { _count: { select: { salesOrders: true } } },
     orderBy: { name: "asc" },
@@ -19,10 +21,8 @@ export default async function CustomersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Customers</h1>
-          <p className="text-sm text-muted-foreground">
-            People and companies you sell to.
-          </p>
+          <h1 className="text-2xl font-semibold">{t("customers.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("customers.subtitle")}</p>
         </div>
         <CustomerForm />
       </div>
@@ -30,11 +30,11 @@ export default async function CustomersPage() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Phone</TableHead>
-            <TableHead className="text-right">Orders</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead>{t("common.name")}</TableHead>
+            <TableHead>{t("common.email")}</TableHead>
+            <TableHead>{t("common.phone")}</TableHead>
+            <TableHead className="text-right">{t("customers.orders")}</TableHead>
+            <TableHead className="text-right">{t("common.actions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -61,7 +61,7 @@ export default async function CustomersPage() {
           {customers.length === 0 && (
             <TableRow>
               <TableCell colSpan={5} className="text-center text-muted-foreground">
-                No customers yet. Create your first one.
+                {t("customers.empty")}
               </TableCell>
             </TableRow>
           )}
