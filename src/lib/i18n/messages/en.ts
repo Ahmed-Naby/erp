@@ -750,4 +750,38 @@ export const en: Messages = {
   "shareholders.toasts.deleted": "Shareholder deleted",
   "shareholders.toasts.issued": "Shares issued",
   "shareholders.toasts.holdingDeleted": "Issuance removed",
+
+  // ── Social Marketing ──────────────────────────────────────
+  "nav.marketing": "Marketing",
+  "nav.socialMarketing": "Social Marketing",
+
+  "socialPlatform.FACEBOOK": "Facebook",
+  "socialPlatform.TWITTER": "X (Twitter)",
+  "socialPlatform.INSTAGRAM": "Instagram",
+  "socialPlatform.LINKEDIN": "LinkedIn",
+
+  "socialStatus.DRAFT": "Draft",
+  "socialStatus.SCHEDULED": "Scheduled",
+  "socialStatus.PUBLISHED": "Published",
+  "socialStatus.CANCELLED": "Cancelled",
+
+  "social.title": "Social Marketing",
+  "social.subtitle": "Plan and schedule social media posts (planning only — no live publishing).",
+  "social.new": "New Post",
+  "social.edit": "Edit Post",
+  "social.platform": "Platform",
+  "social.content": "Content",
+  "social.contentPlaceholder": "What do you want to share?",
+  "social.scheduledAt": "Scheduled For",
+  "social.schedule": "Schedule",
+  "social.unschedule": "Unschedule",
+  "social.publish": "Mark Published",
+  "social.empty": "No posts yet.",
+  "social.toasts.created": "Post created",
+  "social.toasts.updated": "Post updated",
+  "social.toasts.scheduled": "Post scheduled",
+  "social.toasts.unscheduled": "Post moved back to draft",
+  "social.toasts.published": "Post marked as published",
+  "social.toasts.cancelled": "Post cancelled",
+  "social.toasts.deleted": "Post deleted",
 }

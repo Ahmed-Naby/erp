@@ -4,6 +4,7 @@ import {
   Factory,
   LayoutDashboard,
   type LucideIcon,
+  Megaphone,
   Package,
   PieChart,
   Receipt,
@@ -105,6 +106,12 @@ export const navGroups: NavGroup[] = [
     icon: Target,
     color: "bg-fuchsia-100 text-fuchsia-600 dark:bg-fuchsia-500/20 dark:text-fuchsia-300",
     items: [{ label: "nav.pipeline", href: "/crm" }],
+  },
+  {
+    label: "nav.marketing",
+    icon: Megaphone,
+    color: "bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-300",
+    items: [{ label: "nav.socialMarketing", href: "/marketing/social" }],
   },
   {
     label: "nav.contacts",

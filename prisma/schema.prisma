@@ -568,3 +568,20 @@ model ShareHolding {
   issueDate     DateTime    @default(now())
   createdAt     DateTime    @default(now())
 }
+
+// ── Social Marketing ──────────────────────────────────────────
+// platform: FACEBOOK | TWITTER | INSTAGRAM | LINKEDIN
+// status:   DRAFT | SCHEDULED | PUBLISHED | CANCELLED
+// A lightweight post planner — no live social-platform API integration.
+model SocialPost {
+  id          String    @id @default(cuid())
+  content     String
+  platform    String    @default("FACEBOOK")
+  status      String    @default("DRAFT")
+  scheduledAt DateTime?
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([status])
+}

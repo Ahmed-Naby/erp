@@ -750,4 +750,38 @@ export const ar: Messages = {
   "shareholders.toasts.deleted": "تم حذف المساهم",
   "shareholders.toasts.issued": "تم إصدار الأسهم",
   "shareholders.toasts.holdingDeleted": "تمت إزالة الإصدار",
+
+  // ── التسويق الاجتماعي ──────────────────────────────────────
+  "nav.marketing": "التسويق",
+  "nav.socialMarketing": "التسويق الاجتماعي",
+
+  "socialPlatform.FACEBOOK": "فيسبوك",
+  "socialPlatform.TWITTER": "إكس (تويتر)",
+  "socialPlatform.INSTAGRAM": "إنستجرام",
+  "socialPlatform.LINKEDIN": "لينكدإن",
+
+  "socialStatus.DRAFT": "مسودة",
+  "socialStatus.SCHEDULED": "مجدول",
+  "socialStatus.PUBLISHED": "منشور",
+  "socialStatus.CANCELLED": "ملغى",
+
+  "social.title": "التسويق الاجتماعي",
+  "social.subtitle": "خطّط وجدوِل منشورات وسائل التواصل (تخطيط فقط — بدون نشر مباشر).",
+  "social.new": "منشور جديد",
+  "social.edit": "تعديل المنشور",
+  "social.platform": "المنصة",
+  "social.content": "المحتوى",
+  "social.contentPlaceholder": "ماذا تريد أن تشارك؟",
+  "social.scheduledAt": "مجدول لـ",
+  "social.schedule": "جدولة",
+  "social.unschedule": "إلغاء الجدولة",
+  "social.publish": "تمييز كمنشور",
+  "social.empty": "لا توجد منشورات بعد.",
+  "social.toasts.created": "تم إنشاء المنشور",
+  "social.toasts.updated": "تم تحديث المنشور",
+  "social.toasts.scheduled": "تمت جدولة المنشور",
+  "social.toasts.unscheduled": "أُعيد المنشور إلى المسودة",
+  "social.toasts.published": "تم تمييز المنشور كمنشور",
+  "social.toasts.cancelled": "تم إلغاء المنشور",
+  "social.toasts.deleted": "تم حذف المنشور",
 }

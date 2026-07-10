@@ -70,6 +70,31 @@ async function main() {
   await seedDemoPayroll()
   await seedDemoSupplyChain()
   await seedDemoEquity()
+  await seedDemoSocial()
+}
+
+/** Idempotent social-marketing demo — guarded on any existing post. Seeds a
+ * few posts across platforms and statuses so the kanban has content. */
+async function seedDemoSocial() {
+  const existing = await prisma.socialPost.findFirst()
+  if (existing) {
+    console.log("Social-marketing demo data already present — skipping.")
+    return
+  }
+  const soon = new Date()
+  soon.setDate(soon.getDate() + 3)
+  const past = new Date()
+  past.setDate(past.getDate() - 2)
+
+  await prisma.socialPost.createMany({
+    data: [
+      { content: "Big news coming next week — stay tuned! 🚀", platform: "FACEBOOK", status: "DRAFT" },
+      { content: "We're hiring! Check our careers page for open roles.", platform: "LINKEDIN", status: "SCHEDULED", scheduledAt: soon },
+      { content: "Behind the scenes at our warehouse 📦 #logistics", platform: "INSTAGRAM", status: "PUBLISHED", scheduledAt: past, publishedAt: past },
+      { content: "Flash sale this weekend only — 20% off everything.", platform: "TWITTER", status: "DRAFT" },
+    ],
+  })
+  console.log("Seeded social-marketing demo data: 4 posts.")
 }
 
 /** Idempotent equity demo — guarded on any existing share class. Builds two
