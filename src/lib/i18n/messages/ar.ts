@@ -784,4 +784,83 @@ export const ar: Messages = {
   "social.toasts.published": "تم تمييز المنشور كمنشور",
   "social.toasts.cancelled": "تم إلغاء المنشور",
   "social.toasts.deleted": "تم حذف المنشور",
+
+  // ── تعميق المحاسبة ──────────────────────────────────────────
+  "nav.bankReconciliation": "التسوية البنكية",
+  "nav.trialBalance": "ميزان المراجعة",
+  "nav.balanceSheet": "الميزانية العمومية",
+  "nav.periodLocks": "أقفال الفترات",
+
+  "accounting.payments.received": "مقبوض",
+  "accounting.payments.paid": "مدفوع",
+
+  // القيد اليدوي
+  "manualJournal.new": "قيد جديد",
+  "manualJournal.title": "قيد يومية يدوي",
+  "manualJournal.manual": "يدوي",
+  "manualJournal.selectAccount": "اختر حسابًا",
+  "manualJournal.addLine": "إضافة سطر",
+  "manualJournal.post": "ترحيل القيد",
+  "manualJournal.toasts.posted": "تم ترحيل القيد",
+
+  // التقارير (مشترك)
+  "reports.from": "من",
+  "reports.to": "إلى",
+  "reports.apply": "تطبيق",
+
+  // ميزان المراجعة
+  "trialBalance.title": "ميزان المراجعة",
+  "trialBalance.subtitle": "صافي مدين أو دائن لكل حساب — يجب أن يتساوى العمودان.",
+  "trialBalance.empty": "لا توجد قيود في هذه الفترة.",
+  "trialBalance.unbalanced": "غير متوازن",
+
+  // الميزانية العمومية
+  "balanceSheet.title": "الميزانية العمومية",
+  "balanceSheet.subtitle": "الأصول مقابل الخصوم وحقوق الملكية في لحظة زمنية.",
+  "balanceSheet.asOf": "كما في",
+  "balanceSheet.assets": "الأصول",
+  "balanceSheet.liabilities": "الخصوم",
+  "balanceSheet.equity": "حقوق الملكية",
+  "balanceSheet.currentEarnings": "أرباح الفترة الحالية",
+  "balanceSheet.totalAssets": "إجمالي الأصول",
+  "balanceSheet.totalLiabilities": "إجمالي الخصوم",
+  "balanceSheet.totalEquity": "إجمالي حقوق الملكية",
+  "balanceSheet.unbalanced": "الأصول ≠ الخصوم + حقوق الملكية — راجع القيود",
+
+  // التسوية البنكية
+  "bank.title": "التسوية البنكية",
+  "bank.subtitle": "طابِق سطور كشف الحساب البنكي مع المدفوعات المسجلة.",
+  "bank.addLine": "إضافة سطر كشف",
+  "bank.description": "الوصف",
+  "bank.amount": "المبلغ",
+  "bank.amountHint": "موجب للإيداعات، سالب للسحوبات.",
+  "bank.bankBalance": "رصيد الكشف",
+  "bank.reconciled": "مُسوّى",
+  "bank.unreconciled": "غير مُسوّى",
+  "bank.unmatchedPayments": "مدفوعات غير مطابَقة",
+  "bank.matchedPayment": "الدفعة المطابَقة",
+  "bank.statusReconciled": "مُسوّى",
+  "bank.statusUnreconciled": "غير مُسوّى",
+  "bank.match": "مطابقة",
+  "bank.matchTitle": "المطابقة مع دفعة",
+  "bank.selectPayment": "اختر دفعة",
+  "bank.unmatch": "إلغاء المطابقة",
+  "bank.empty": "لا توجد سطور كشف بعد.",
+  "bank.toasts.added": "تمت إضافة السطر",
+  "bank.toasts.matched": "تمت مطابقة السطر",
+  "bank.toasts.unmatched": "تم إلغاء المطابقة",
+  "bank.toasts.deleted": "تم حذف السطر",
+
+  // أقفال الفترات
+  "periods.title": "أقفال الفترات",
+  "periods.subtitle": "أقفل شهرًا لمنع ترحيل أي قيود جديدة إليه.",
+  "periods.lock": "قفل فترة",
+  "periods.lockTitle": "قفل فترة مالية",
+  "periods.period": "الفترة",
+  "periods.note": "ملاحظة",
+  "periods.lockedOn": "تاريخ القفل",
+  "periods.unlock": "فتح",
+  "periods.empty": "لا توجد فترات مقفلة.",
+  "periods.toasts.locked": "تم قفل الفترة",
+  "periods.toasts.unlocked": "تم فتح الفترة",
 }

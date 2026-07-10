@@ -12,12 +12,22 @@ type JournalLineInput = {
 export type PostJournalEntryInput = {
   memo?: string
   reference?: string
+  /** Posting date. Defaults to now; also drives the period-lock check. */
+  date?: Date
+  /** "SYSTEM" (workflow-posted, default) | "MANUAL" (hand-entered). */
+  source?: string
   lines: JournalLineInput[]
+}
+
+/** "YYYY-MM" period key for a posting date. */
+export function periodKey(date: Date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`
 }
 
 /**
  * Posts a balanced double-entry journal entry. Throws if debits and
- * credits don't sum to the same total (within floating point tolerance).
+ * credits don't sum to the same total (within floating point tolerance),
+ * or if the posting date falls inside a locked fiscal period.
  */
 export async function postJournalEntry(
   input: PostJournalEntryInput,
@@ -31,7 +41,16 @@ export async function postJournalEntry(
     )
   }
 
+  const date = input.date ?? new Date()
+
   const run = async (client: Prisma.TransactionClient) => {
+    const lock = await client.periodLock.findUnique({
+      where: { period: periodKey(date) },
+    })
+    if (lock) {
+      throw new Error(`Accounting period ${lock.period} is locked`)
+    }
+
     const entryNumber = await nextSequence("journalEntry", "JE", client)
 
     const accounts = await client.account.findMany({
@@ -42,8 +61,10 @@ export async function postJournalEntry(
     return client.journalEntry.create({
       data: {
         entryNumber,
+        date,
         memo: input.memo,
         reference: input.reference,
+        source: input.source ?? "SYSTEM",
         lines: {
           create: input.lines.map((l) => {
             const account = accountByCode.get(l.accountCode)

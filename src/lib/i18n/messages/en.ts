@@ -784,4 +784,83 @@ export const en: Messages = {
   "social.toasts.published": "Post marked as published",
   "social.toasts.cancelled": "Post cancelled",
   "social.toasts.deleted": "Post deleted",
+
+  // ── Accounting depth ──────────────────────────────────────
+  "nav.bankReconciliation": "Bank Reconciliation",
+  "nav.trialBalance": "Trial Balance",
+  "nav.balanceSheet": "Balance Sheet",
+  "nav.periodLocks": "Period Locks",
+
+  "accounting.payments.received": "Received",
+  "accounting.payments.paid": "Paid",
+
+  // Manual journal entry
+  "manualJournal.new": "New Entry",
+  "manualJournal.title": "Manual Journal Entry",
+  "manualJournal.manual": "Manual",
+  "manualJournal.selectAccount": "Select an account",
+  "manualJournal.addLine": "Add Line",
+  "manualJournal.post": "Post Entry",
+  "manualJournal.toasts.posted": "Journal entry posted",
+
+  // Reports (shared)
+  "reports.from": "From",
+  "reports.to": "To",
+  "reports.apply": "Apply",
+
+  // Trial Balance
+  "trialBalance.title": "Trial Balance",
+  "trialBalance.subtitle": "Every account's net debit or credit — the two columns must match.",
+  "trialBalance.empty": "No postings in this range.",
+  "trialBalance.unbalanced": "Out of balance",
+
+  // Balance Sheet
+  "balanceSheet.title": "Balance Sheet",
+  "balanceSheet.subtitle": "Assets against liabilities and equity, at a point in time.",
+  "balanceSheet.asOf": "As of",
+  "balanceSheet.assets": "Assets",
+  "balanceSheet.liabilities": "Liabilities",
+  "balanceSheet.equity": "Equity",
+  "balanceSheet.currentEarnings": "Current-period earnings",
+  "balanceSheet.totalAssets": "Total Assets",
+  "balanceSheet.totalLiabilities": "Total Liabilities",
+  "balanceSheet.totalEquity": "Total Equity",
+  "balanceSheet.unbalanced": "Assets ≠ Liabilities + Equity — check your postings",
+
+  // Bank Reconciliation
+  "bank.title": "Bank Reconciliation",
+  "bank.subtitle": "Match bank statement lines against recorded payments.",
+  "bank.addLine": "Add Statement Line",
+  "bank.description": "Description",
+  "bank.amount": "Amount",
+  "bank.amountHint": "Positive for deposits, negative for withdrawals.",
+  "bank.bankBalance": "Statement Balance",
+  "bank.reconciled": "Reconciled",
+  "bank.unreconciled": "Unreconciled",
+  "bank.unmatchedPayments": "Unmatched Payments",
+  "bank.matchedPayment": "Matched Payment",
+  "bank.statusReconciled": "Reconciled",
+  "bank.statusUnreconciled": "Unreconciled",
+  "bank.match": "Match",
+  "bank.matchTitle": "Match to a Payment",
+  "bank.selectPayment": "Select a payment",
+  "bank.unmatch": "Unmatch",
+  "bank.empty": "No statement lines yet.",
+  "bank.toasts.added": "Statement line added",
+  "bank.toasts.matched": "Line matched",
+  "bank.toasts.unmatched": "Line unmatched",
+  "bank.toasts.deleted": "Line deleted",
+
+  // Period locks
+  "periods.title": "Period Locks",
+  "periods.subtitle": "Close a month so no more entries can be posted into it.",
+  "periods.lock": "Lock a Period",
+  "periods.lockTitle": "Lock a Fiscal Period",
+  "periods.period": "Period",
+  "periods.note": "Note",
+  "periods.lockedOn": "Locked On",
+  "periods.unlock": "Unlock",
+  "periods.empty": "No periods locked.",
+  "periods.toasts.locked": "Period locked",
+  "periods.toasts.unlocked": "Period unlocked",
 }

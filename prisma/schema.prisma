@@ -246,6 +246,8 @@ model JournalEntry {
   date        DateTime @default(now())
   memo        String?
   reference   String?
+  // SYSTEM (auto-posted by a workflow) | MANUAL (hand-entered)
+  source      String   @default("SYSTEM")
   createdAt   DateTime @default(now())
 
   lines JournalLine[]
@@ -277,6 +279,7 @@ model Payment {
   purchaseOrder   PurchaseOrder? @relation(fields: [purchaseOrderId], references: [id])
   createdById     String?
   createdBy       User?          @relation(fields: [createdById], references: [id])
+  statementLine   BankStatementLine?
   createdAt       DateTime       @default(now())
 }
 
@@ -584,4 +587,29 @@ model SocialPost {
   updatedAt   DateTime  @updatedAt
 
   @@index([status])
+}
+
+// ── Accounting depth: bank reconciliation + period close ──────
+// A line from a bank statement, optionally matched to a book Payment.
+// amount is signed: positive = deposit/credit, negative = withdrawal/debit.
+model BankStatementLine {
+  id          String   @id @default(cuid())
+  date        DateTime @default(now())
+  description String
+  amount      Float
+  reconciled  Boolean  @default(false)
+  paymentId   String?  @unique
+  payment     Payment? @relation(fields: [paymentId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@index([reconciled])
+}
+
+// A locked fiscal period ("YYYY-MM"). Posting a journal entry dated inside a
+// locked period is rejected (enforced in journalService.postJournalEntry).
+model PeriodLock {
+  id        String   @id @default(cuid())
+  period    String   @unique
+  note      String?
+  createdAt DateTime @default(now())
 }

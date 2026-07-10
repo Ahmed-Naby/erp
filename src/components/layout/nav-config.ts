@@ -171,7 +171,11 @@ export const navGroups: NavGroup[] = [
       { label: "nav.chartOfAccounts", href: "/accounting/accounts" },
       { label: "nav.journal", href: "/accounting/journal" },
       { label: "nav.payments", href: "/accounting/payments" },
+      { label: "nav.bankReconciliation", href: "/accounting/bank" },
+      { label: "nav.trialBalance", href: "/accounting/trial-balance" },
+      { label: "nav.balanceSheet", href: "/accounting/balance-sheet" },
       { label: "nav.reports", href: "/accounting/reports" },
+      { label: "nav.periodLocks", href: "/accounting/periods" },
     ],
   },
   {

@@ -72,6 +72,52 @@ async function main() {
   await seedDemoSupplyChain()
   await seedDemoEquity()
   await seedDemoSocial()
+  await seedDemoAccountingDepth()
+}
+
+/** Idempotent accounting-depth demo — guarded on any existing bank line.
+ * Adds bank statement lines (one matched to a real payment, one unmatched),
+ * a manual journal entry, and locks a long-past period as an example. */
+async function seedDemoAccountingDepth() {
+  const existing = await prisma.bankStatementLine.findFirst()
+  if (existing) {
+    console.log("Accounting-depth demo data already present — skipping.")
+    return
+  }
+
+  // A hand-posted accrual, flagged MANUAL.
+  await postJournalEntry({
+    memo: "Accrued office supplies",
+    source: "MANUAL",
+    lines: [
+      { accountCode: ACCOUNT_CODES.OPERATING_EXPENSES, debit: 750 },
+      { accountCode: ACCOUNT_CODES.CASH, credit: 750 },
+    ],
+  })
+
+  // Bank statement: match the first real payment, plus one unmatched deposit.
+  const payment = await prisma.payment.findFirst({ orderBy: { date: "desc" } })
+  if (payment) {
+    await prisma.bankStatementLine.create({
+      data: {
+        date: payment.date,
+        description: `Bank: ${payment.paymentNumber}`,
+        amount: payment.type === "RECEIVED" ? payment.amount : -payment.amount,
+        reconciled: true,
+        paymentId: payment.id,
+      },
+    })
+  }
+  await prisma.bankStatementLine.create({
+    data: { description: "Bank fees", amount: -35, reconciled: false },
+  })
+
+  // Example locked period far in the past (harmless — no entries there).
+  await prisma.periodLock.create({
+    data: { period: "2023-12", note: "Year-end close (demo)" },
+  })
+
+  console.log("Seeded accounting-depth demo: manual entry, bank lines, period lock.")
 }
 
 /** Idempotent social-marketing demo — guarded on any existing post. Seeds a

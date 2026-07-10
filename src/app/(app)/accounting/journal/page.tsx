@@ -12,7 +12,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
 import { Pagination } from "@/components/shared/pagination"
+import { ManualJournalForm } from "@/components/accounting/manual-journal-form"
 import { prisma } from "@/lib/prisma"
 import { getTranslations } from "@/lib/i18n/server"
 import { pageArgs, pageCount, parsePage } from "@/lib/pagination"
@@ -25,20 +27,24 @@ export default async function JournalPage({
   const { page: pageParam } = await searchParams
   const page = parsePage(pageParam)
   const { t } = await getTranslations()
-  const [total, entries] = await Promise.all([
+  const [total, entries, accounts] = await Promise.all([
     prisma.journalEntry.count(),
     prisma.journalEntry.findMany({
       include: { lines: { include: { account: true } } },
       orderBy: { date: "desc" },
       ...pageArgs(page),
     }),
+    prisma.account.findMany({ orderBy: { code: "asc" }, select: { code: true, name: true } }),
   ])
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">{t("accounting.journal.title")}</h1>
-        <p className="text-sm text-muted-foreground">{t("accounting.journal.subtitle")}</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">{t("accounting.journal.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("accounting.journal.subtitle")}</p>
+        </div>
+        <ManualJournalForm accounts={accounts} />
       </div>
 
       <div className="space-y-4">
@@ -48,8 +54,11 @@ export default async function JournalPage({
             <Card key={entry.id}>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between text-base">
-                  <span>
+                  <span className="flex items-center gap-2">
                     {entry.entryNumber}
+                    {entry.source === "MANUAL" && (
+                      <Badge variant="secondary">{t("manualJournal.manual")}</Badge>
+                    )}
                     {entry.memo ? ` — ${entry.memo}` : ""}
                   </span>
                   <span className="text-sm font-normal text-muted-foreground">
