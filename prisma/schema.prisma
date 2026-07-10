@@ -283,10 +283,11 @@ model Counter {
 }
 
 model Department {
-  id        String     @id @default(cuid())
-  name      String     @unique
-  createdAt DateTime   @default(now())
-  employees Employee[]
+  id           String        @id @default(cuid())
+  name         String        @unique
+  createdAt    DateTime      @default(now())
+  employees    Employee[]
+  jobPositions JobPosition[]
 }
 
 model Employee {
@@ -304,6 +305,96 @@ model Employee {
   active       Boolean     @default(true)
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
+
+  timeOff     TimeOff[]
+  attendances Attendance[]
+  expenses    Expense[]
+  appraisals  Appraisal[]
+}
+
+// type: ANNUAL | SICK | UNPAID · status: DRAFT | APPROVED | REFUSED (String, per SQLite legacy).
+model TimeOff {
+  id         String   @id @default(cuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  type       String   @default("ANNUAL")
+  startDate  DateTime
+  endDate    DateTime
+  days       Float    @default(1)
+  reason     String?
+  status     String   @default("DRAFT")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([status])
+}
+
+model Attendance {
+  id         String    @id @default(cuid())
+  employeeId String
+  employee   Employee  @relation(fields: [employeeId], references: [id])
+  checkIn    DateTime
+  checkOut   DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([employeeId])
+}
+
+// category: TRAVEL | MEALS | SUPPLIES | OTHER
+// status: DRAFT | SUBMITTED | APPROVED | REFUSED | POSTED
+model Expense {
+  id          String   @id @default(cuid())
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  description String
+  category    String   @default("OTHER")
+  amount      Float
+  date        DateTime @default(now())
+  status      String   @default("DRAFT")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+}
+
+model JobPosition {
+  id           String      @id @default(cuid())
+  title        String
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  isOpen       Boolean     @default(true)
+  description  String?
+  createdAt    DateTime    @default(now())
+  applicants   Applicant[]
+}
+
+// stage: NEW | INTERVIEW | OFFER | HIRED | REFUSED
+model Applicant {
+  id            String       @id @default(cuid())
+  name          String
+  email         String?
+  phone         String?
+  jobPositionId String?
+  jobPosition   JobPosition? @relation(fields: [jobPositionId], references: [id])
+  stage         String       @default("NEW")
+  notes         String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([stage])
+}
+
+// status: DRAFT | DONE
+model Appraisal {
+  id         String   @id @default(cuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  date       DateTime @default(now())
+  rating     Int?
+  feedback   String?
+  status     String   @default("DRAFT")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 // stage is a String ("NEW" | "QUALIFIED" | "PROPOSITION" | "WON" | "LOST")

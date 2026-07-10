@@ -4,10 +4,12 @@ import {
   LayoutDashboard,
   type LucideIcon,
   Package,
+  Receipt,
   Settings,
   ShoppingBag,
   ShoppingCart,
   Target,
+  UserPlus,
   Users,
 } from "lucide-react"
 
@@ -82,7 +84,25 @@ export const navGroups: NavGroup[] = [
     items: [
       { label: "nav.employees", href: "/hr/employees" },
       { label: "nav.departments", href: "/hr/departments" },
+      { label: "nav.timeOff", href: "/hr/time-off" },
+      { label: "nav.attendances", href: "/hr/attendances" },
+      { label: "nav.appraisals", href: "/hr/appraisals" },
     ],
+  },
+  {
+    label: "nav.recruitment",
+    icon: UserPlus,
+    color: "bg-lime-100 text-lime-600 dark:bg-lime-500/20 dark:text-lime-300",
+    items: [
+      { label: "nav.jobPositions", href: "/recruitment/jobs" },
+      { label: "nav.applicants", href: "/recruitment/applicants" },
+    ],
+  },
+  {
+    label: "nav.expenses",
+    icon: Receipt,
+    color: "bg-pink-100 text-pink-600 dark:bg-pink-500/20 dark:text-pink-300",
+    items: [{ label: "nav.expenses", href: "/expenses" }],
   },
   {
     label: "nav.accounting",

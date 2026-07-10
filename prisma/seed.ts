@@ -65,6 +65,68 @@ async function main() {
   await seedDemoData(admin.id, admin.email)
   await seedDemoHr()
   await seedDemoCrm(admin.id, admin.email)
+  await seedDemoHrSuite()
+}
+
+/** Idempotent HR-suite demo data — guarded on any existing job position. */
+async function seedDemoHrSuite() {
+  const existing = await prisma.jobPosition.findFirst()
+  if (existing) {
+    console.log("HR-suite demo data already present — skipping.")
+    return
+  }
+  const employees = await prisma.employee.findMany({ orderBy: { name: "asc" }, take: 5 })
+  if (employees.length < 3) return
+  const [e0, e1, e2] = employees
+  const day = (offset: number) => {
+    const d = new Date()
+    d.setDate(d.getDate() + offset)
+    return d
+  }
+
+  await prisma.timeOff.createMany({
+    data: [
+      { employeeId: e0.id, type: "ANNUAL", startDate: day(7), endDate: day(10), days: 3, reason: "Family trip", status: "APPROVED" },
+      { employeeId: e1.id, type: "SICK", startDate: day(-1), endDate: day(-1), days: 1, status: "DRAFT" },
+      { employeeId: e2.id, type: "UNPAID", startDate: day(20), endDate: day(21), days: 2, status: "DRAFT" },
+    ],
+  })
+
+  await prisma.attendance.createMany({
+    data: [
+      { employeeId: e0.id, checkIn: day(-1), checkOut: new Date(day(-1).getTime() + 8 * 3_600_000) },
+      { employeeId: e1.id, checkIn: new Date(Date.now() - 3 * 3_600_000) },
+    ],
+  })
+
+  await prisma.expense.createMany({
+    data: [
+      { employeeId: e0.id, description: "Client lunch", category: "MEALS", amount: 45, status: "SUBMITTED" },
+      { employeeId: e2.id, description: "Taxi to client site", category: "TRAVEL", amount: 20, status: "DRAFT" },
+      { employeeId: e1.id, description: "Printer paper", category: "SUPPLIES", amount: 12.5, status: "APPROVED" },
+    ],
+  })
+
+  const sales = await prisma.jobPosition.create({ data: { title: "Sales Representative", isOpen: true } })
+  const warehouse = await prisma.jobPosition.create({ data: { title: "Warehouse Associate", isOpen: true } })
+  await prisma.applicant.createMany({
+    data: [
+      { name: "Layla Mansour", email: "layla@example.com", jobPositionId: sales.id, stage: "NEW" },
+      { name: "Karim Fouad", email: "karim@example.com", jobPositionId: sales.id, stage: "INTERVIEW" },
+      { name: "Hana Saeed", email: "hana@example.com", jobPositionId: warehouse.id, stage: "OFFER" },
+      { name: "Tarek Nabil", jobPositionId: warehouse.id, stage: "HIRED" },
+      { name: "Dina Samir", jobPositionId: sales.id, stage: "REFUSED" },
+    ],
+  })
+
+  await prisma.appraisal.createMany({
+    data: [
+      { employeeId: e0.id, rating: 4, feedback: "Strong quarter, exceeded targets.", status: "DONE" },
+      { employeeId: e1.id, status: "DRAFT" },
+    ],
+  })
+
+  console.log("Seeded HR-suite demo data: time off, attendances, expenses, 2 jobs + 5 applicants, appraisals.")
 }
 
 /**
