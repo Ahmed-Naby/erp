@@ -1,7 +1,8 @@
 import { PrismaClient } from "@prisma/client"
 import bcrypt from "bcryptjs"
 
-import { DEFAULT_ACCOUNTS } from "../src/lib/accounts"
+import { ACCOUNT_CODES, DEFAULT_ACCOUNTS } from "../src/lib/accounts"
+import { postJournalEntry } from "../src/services/journalService"
 import {
   cancelSalesOrder,
   confirmSalesOrder,
@@ -119,14 +120,33 @@ async function seedDemoEquity() {
     data: { name: "Nile Ventures LLC", email: "invest@nileventures.example", type: "ENTITY" },
   })
 
-  await prisma.shareHolding.createMany({
-    data: [
-      { shareholderId: founder.id, shareClassId: common.id, shares: 600000, pricePerShare: 1, issueDate: new Date("2024-01-15") },
-      { shareholderId: cofounder.id, shareClassId: common.id, shares: 250000, pricePerShare: 1, issueDate: new Date("2024-01-15") },
-      { shareholderId: investor.id, shareClassId: preferred.id, shares: 150000, pricePerShare: 4, issueDate: new Date("2025-03-01") },
-    ],
-  })
-  console.log("Seeded equity demo data: 2 classes, 3 shareholders, cap table.")
+  const issuances = [
+    { holder: founder, name: "Ahmed Abdel-Naby", shareClassId: common.id, shares: 600000, pricePerShare: 1, issueDate: new Date("2024-01-15") },
+    { holder: cofounder, name: "Layla Hassan", shareClassId: common.id, shares: 250000, pricePerShare: 1, issueDate: new Date("2024-01-15") },
+    { holder: investor, name: "Nile Ventures LLC", shareClassId: preferred.id, shares: 150000, pricePerShare: 4, issueDate: new Date("2025-03-01") },
+  ]
+  for (const i of issuances) {
+    const holding = await prisma.shareHolding.create({
+      data: {
+        shareholderId: i.holder.id,
+        shareClassId: i.shareClassId,
+        shares: i.shares,
+        pricePerShare: i.pricePerShare,
+        issueDate: i.issueDate,
+      },
+    })
+    // Mirror the issueShares action: debit Cash, credit Owner's Equity.
+    const proceeds = i.shares * i.pricePerShare
+    await postJournalEntry({
+      memo: `Share issuance: ${i.name}`,
+      reference: `EQ-${holding.id.slice(0, 8)}`,
+      lines: [
+        { accountCode: ACCOUNT_CODES.CASH, debit: proceeds },
+        { accountCode: ACCOUNT_CODES.OWNERS_EQUITY, credit: proceeds },
+      ],
+    })
+  }
+  console.log("Seeded equity demo data: 2 classes, 3 shareholders, cap table + journal entries.")
 }
 
 /** Idempotent supply-chain demo — guarded on any existing BOM. Builds a BOM
