@@ -302,6 +302,7 @@ model Employee {
   manager      Employee?   @relation("EmployeeManager", fields: [managerId], references: [id])
   reports      Employee[]  @relation("EmployeeManager")
   hireDate     DateTime?
+  wage         Float       @default(0)
   active       Boolean     @default(true)
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
@@ -310,6 +311,23 @@ model Employee {
   attendances Attendance[]
   expenses    Expense[]
   appraisals  Appraisal[]
+  payslips    Payslip[]
+}
+
+// period: "YYYY-MM" · status: DRAFT | CONFIRMED | PAID (String, per SQLite legacy).
+model Payslip {
+  id          String   @id @default(cuid())
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  period      String
+  basicSalary Float    @default(0)
+  allowances  Float    @default(0)
+  deductions  Float    @default(0)
+  status      String   @default("DRAFT")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
 }
 
 // type: ANNUAL | SICK | UNPAID · status: DRAFT | APPROVED | REFUSED (String, per SQLite legacy).

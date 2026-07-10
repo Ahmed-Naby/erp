@@ -9,6 +9,7 @@ export const ACCOUNT_CODES = {
   SALES_REVENUE: "4000",
   COST_OF_GOODS_SOLD: "5000",
   OPERATING_EXPENSES: "5100",
+  SALARY_EXPENSE: "5200",
 } as const
 
 export const DEFAULT_ACCOUNTS: { code: string; name: string; type: string }[] = [
@@ -22,4 +23,5 @@ export const DEFAULT_ACCOUNTS: { code: string; name: string; type: string }[] = 
   { code: ACCOUNT_CODES.SALES_REVENUE, name: "Sales Revenue", type: "REVENUE" },
   { code: ACCOUNT_CODES.COST_OF_GOODS_SOLD, name: "Cost of Goods Sold", type: "EXPENSE" },
   { code: ACCOUNT_CODES.OPERATING_EXPENSES, name: "Operating Expenses", type: "EXPENSE" },
+  { code: ACCOUNT_CODES.SALARY_EXPENSE, name: "Salary Expense", type: "EXPENSE" },
 ]

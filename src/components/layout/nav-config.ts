@@ -11,6 +11,7 @@ import {
   Target,
   UserPlus,
   Users,
+  Wallet,
 } from "lucide-react"
 
 export type NavItem = {
@@ -103,6 +104,12 @@ export const navGroups: NavGroup[] = [
     icon: Receipt,
     color: "bg-pink-100 text-pink-600 dark:bg-pink-500/20 dark:text-pink-300",
     items: [{ label: "nav.expenses", href: "/expenses" }],
+  },
+  {
+    label: "nav.payroll",
+    icon: Wallet,
+    color: "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-300",
+    items: [{ label: "nav.payroll", href: "/hr/payroll" }],
   },
   {
     label: "nav.accounting",

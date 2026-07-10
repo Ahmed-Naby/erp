@@ -9,15 +9,7 @@ function relId(value?: string) {
   return value && value !== "none" ? value : null
 }
 
-function toData(data: {
-  name: string
-  jobTitle?: string
-  workEmail?: string
-  workPhone?: string
-  departmentId?: string
-  managerId?: string
-  hireDate?: string
-}) {
+function toData(data: ReturnType<typeof employeeSchema.parse>) {
   return {
     name: data.name,
     jobTitle: data.jobTitle || null,
@@ -26,6 +18,7 @@ function toData(data: {
     departmentId: relId(data.departmentId),
     managerId: relId(data.managerId),
     hireDate: data.hireDate ? new Date(data.hireDate) : null,
+    wage: data.wage,
   }
 }
 

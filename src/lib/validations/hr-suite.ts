@@ -50,6 +50,16 @@ export const applicantSchema = z.object({
 })
 export type ApplicantInput = z.infer<typeof applicantSchema>
 
+// Payroll — payslip
+export const payslipSchema = z.object({
+  employeeId: z.string().min(1, "Employee is required"),
+  period: z.string().min(1, "Period is required"),
+  basicSalary: z.coerce.number().min(0, "Must be 0 or more"),
+  allowances: z.coerce.number().min(0, "Must be 0 or more"),
+  deductions: z.coerce.number().min(0, "Must be 0 or more"),
+})
+export type PayslipInput = z.infer<typeof payslipSchema>
+
 // Appraisal — rating is a select value ("none" | "1".."5") to keep the form simple.
 export const appraisalSchema = z.object({
   employeeId: z.string().min(1, "Employee is required"),

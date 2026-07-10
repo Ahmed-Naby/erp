@@ -55,6 +55,7 @@ export default async function EmployeeDetailPage({
               hireDate: employee.hireDate
                 ? employee.hireDate.toISOString().slice(0, 10)
                 : "",
+              wage: employee.wage,
             }}
           />
           <EmployeeActiveToggle id={employee.id} active={employee.active} />

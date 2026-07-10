@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
+import type { z } from "zod"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -57,7 +58,7 @@ export function EmployeeForm({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const t = useTranslations()
 
-  const form = useForm<EmployeeInput>({
+  const form = useForm<z.input<typeof employeeSchema>, unknown, EmployeeInput>({
     resolver: zodResolver(employeeSchema),
     defaultValues: {
       name: "",
@@ -67,6 +68,7 @@ export function EmployeeForm({
       departmentId: "none",
       managerId: "none",
       hireDate: "",
+      wage: 0,
       ...defaultValues,
     },
   })
@@ -215,6 +217,19 @@ export function EmployeeForm({
                   <FormLabel>{t("hr.employees.hireDate")}</FormLabel>
                   <FormControl>
                     <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="wage"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("hr.employees.wage")}</FormLabel>
+                  <FormControl>
+                    <Input type="number" step="0.01" min="0" {...field} value={field.value as number} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

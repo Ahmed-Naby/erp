@@ -8,6 +8,7 @@ export const employeeSchema = z.object({
   departmentId: z.string().optional(),
   managerId: z.string().optional(),
   hireDate: z.string().optional(),
+  wage: z.coerce.number().min(0, "Must be 0 or more"),
 })
 export type EmployeeInput = z.infer<typeof employeeSchema>
 

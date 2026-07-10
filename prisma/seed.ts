@@ -66,6 +66,39 @@ async function main() {
   await seedDemoHr()
   await seedDemoCrm(admin.id, admin.email)
   await seedDemoHrSuite()
+  await seedDemoPayroll()
+}
+
+/** Idempotent payroll demo — guarded on any existing payslip. Sets employee
+ * wages (if unset) and creates a few payslips for the current month. */
+async function seedDemoPayroll() {
+  const existing = await prisma.payslip.findFirst()
+  if (existing) {
+    console.log("Payroll demo data already present — skipping.")
+    return
+  }
+  const employees = await prisma.employee.findMany({ orderBy: { name: "asc" }, take: 5 })
+  if (employees.length < 3) return
+
+  const wages = [15000, 9000, 7000, 6500, 6000]
+  for (let i = 0; i < employees.length; i++) {
+    if (employees[i].wage === 0) {
+      await prisma.employee.update({
+        where: { id: employees[i].id },
+        data: { wage: wages[i] ?? 6000 },
+      })
+    }
+  }
+
+  const period = new Date().toISOString().slice(0, 7)
+  await prisma.payslip.createMany({
+    data: [
+      { employeeId: employees[0].id, period, basicSalary: 15000, allowances: 1500, deductions: 500, status: "CONFIRMED" },
+      { employeeId: employees[1].id, period, basicSalary: 9000, allowances: 500, deductions: 300, status: "CONFIRMED" },
+      { employeeId: employees[2].id, period, basicSalary: 7000, allowances: 0, deductions: 0, status: "DRAFT" },
+    ],
+  })
+  console.log("Seeded payroll demo data: wages + 3 payslips.")
 }
 
 /** Idempotent HR-suite demo data — guarded on any existing job position. */
