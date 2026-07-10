@@ -537,3 +537,34 @@ model RepairOrder {
 
   @@index([status])
 }
+
+// ── Equity / Cap Table ────────────────────────────────────────
+model ShareClass {
+  id        String         @id @default(cuid())
+  name      String         @unique
+  parValue  Float          @default(0)
+  createdAt DateTime       @default(now())
+  holdings  ShareHolding[]
+}
+
+// type: INDIVIDUAL | ENTITY
+model Shareholder {
+  id        String         @id @default(cuid())
+  name      String
+  email     String?
+  type      String         @default("INDIVIDUAL")
+  createdAt DateTime       @default(now())
+  holdings  ShareHolding[]
+}
+
+model ShareHolding {
+  id            String      @id @default(cuid())
+  shareholderId String
+  shareholder   Shareholder @relation(fields: [shareholderId], references: [id], onDelete: Cascade)
+  shareClassId  String
+  shareClass    ShareClass  @relation(fields: [shareClassId], references: [id])
+  shares        Float
+  pricePerShare Float       @default(0)
+  issueDate     DateTime    @default(now())
+  createdAt     DateTime    @default(now())
+}

@@ -69,6 +69,39 @@ async function main() {
   await seedDemoHrSuite()
   await seedDemoPayroll()
   await seedDemoSupplyChain()
+  await seedDemoEquity()
+}
+
+/** Idempotent equity demo — guarded on any existing share class. Builds two
+ * share classes, three shareholders and their holdings so the cap table has
+ * realistic ownership percentages. */
+async function seedDemoEquity() {
+  const existing = await prisma.shareClass.findFirst()
+  if (existing) {
+    console.log("Equity demo data already present — skipping.")
+    return
+  }
+  const common = await prisma.shareClass.create({ data: { name: "Common", parValue: 1 } })
+  const preferred = await prisma.shareClass.create({ data: { name: "Preferred A", parValue: 1 } })
+
+  const founder = await prisma.shareholder.create({
+    data: { name: "Ahmed Abdel-Naby", email: "founder@erp.local", type: "INDIVIDUAL" },
+  })
+  const cofounder = await prisma.shareholder.create({
+    data: { name: "Layla Hassan", email: "layla@erp.local", type: "INDIVIDUAL" },
+  })
+  const investor = await prisma.shareholder.create({
+    data: { name: "Nile Ventures LLC", email: "invest@nileventures.example", type: "ENTITY" },
+  })
+
+  await prisma.shareHolding.createMany({
+    data: [
+      { shareholderId: founder.id, shareClassId: common.id, shares: 600000, pricePerShare: 1, issueDate: new Date("2024-01-15") },
+      { shareholderId: cofounder.id, shareClassId: common.id, shares: 250000, pricePerShare: 1, issueDate: new Date("2024-01-15") },
+      { shareholderId: investor.id, shareClassId: preferred.id, shares: 150000, pricePerShare: 4, issueDate: new Date("2025-03-01") },
+    ],
+  })
+  console.log("Seeded equity demo data: 2 classes, 3 shareholders, cap table.")
 }
 
 /** Idempotent supply-chain demo — guarded on any existing BOM. Builds a BOM

@@ -17,7 +17,8 @@ export default auth((req) => {
 
   const isAdminOnlyPath =
     req.nextUrl.pathname.startsWith("/accounting") ||
-    req.nextUrl.pathname.startsWith("/settings")
+    req.nextUrl.pathname.startsWith("/settings") ||
+    req.nextUrl.pathname.startsWith("/equity")
 
   if (isLoggedIn && isAdminOnlyPath && req.auth?.user.role !== "ADMIN") {
     return NextResponse.redirect(new URL("/dashboard", req.nextUrl.origin))

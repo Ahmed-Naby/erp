@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   type LucideIcon,
   Package,
+  PieChart,
   Receipt,
   Settings,
   ShieldCheck,
@@ -143,6 +144,16 @@ export const navGroups: NavGroup[] = [
     icon: Wallet,
     color: "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-300",
     items: [{ label: "nav.payroll", href: "/hr/payroll" }],
+  },
+  {
+    label: "nav.equity",
+    adminOnly: true,
+    icon: PieChart,
+    color: "bg-purple-100 text-purple-600 dark:bg-purple-500/20 dark:text-purple-300",
+    items: [
+      { label: "nav.capTable", href: "/equity/shareholders" },
+      { label: "nav.shareClasses", href: "/equity/classes" },
+    ],
   },
   {
     label: "nav.accounting",
