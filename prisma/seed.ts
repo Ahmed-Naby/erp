@@ -14,6 +14,7 @@ import {
   receivePurchaseOrder,
   sendPurchaseOrder,
 } from "../src/services/purchasingService"
+import { nextSequence } from "../src/services/counter"
 import { logAudit } from "../src/lib/audit"
 
 const prisma = new PrismaClient()
@@ -67,6 +68,89 @@ async function main() {
   await seedDemoCrm(admin.id, admin.email)
   await seedDemoHrSuite()
   await seedDemoPayroll()
+  await seedDemoSupplyChain()
+}
+
+/** Idempotent supply-chain demo — guarded on any existing BOM. Builds a BOM
+ * for a finished product, a manufacturing order, equipment + a maintenance
+ * request, a quality check, and a repair order so all views have data. */
+async function seedDemoSupplyChain() {
+  const existing = await prisma.bom.findFirst()
+  if (existing) {
+    console.log("Supply-chain demo data already present — skipping.")
+    return
+  }
+  const products = await prisma.product.findMany({ orderBy: { name: "asc" }, take: 4 })
+  const warehouse = await prisma.warehouse.findFirst()
+  if (products.length < 3 || !warehouse) {
+    console.log("Not enough products/warehouse for supply-chain demo — skipping.")
+    return
+  }
+  const [finished, comp1, comp2] = products
+
+  // Bill of materials for the finished product.
+  const bom = await prisma.bom.create({
+    data: {
+      productId: finished.id,
+      quantity: 1,
+      lines: {
+        create: [
+          { productId: comp1.id, quantity: 2 },
+          { productId: comp2.id, quantity: 3 },
+        ],
+      },
+    },
+  })
+
+  // Manufacturing orders.
+  const mo1 = await nextSequence("manufacturingOrder", "MO")
+  const mo2 = await nextSequence("manufacturingOrder", "MO")
+  await prisma.manufacturingOrder.createMany({
+    data: [
+      { moNumber: mo1, productId: finished.id, quantity: 10, warehouseId: warehouse.id, bomId: bom.id, status: "CONFIRMED" },
+      { moNumber: mo2, productId: finished.id, quantity: 5, warehouseId: warehouse.id, bomId: bom.id, status: "DRAFT" },
+    ],
+  })
+
+  // Equipment + maintenance requests.
+  const employee = await prisma.employee.findFirst({ orderBy: { name: "asc" } })
+  const press = await prisma.equipment.create({
+    data: {
+      name: "Hydraulic Press #1",
+      category: "Machinery",
+      serialNumber: "HP-2024-001",
+      assignedToId: employee?.id ?? null,
+    },
+  })
+  await prisma.maintenanceRequest.createMany({
+    data: [
+      { title: "Replace worn seals", equipmentId: press.id, type: "CORRECTIVE", stage: "NEW", description: "Oil leak observed near the main cylinder." },
+      { title: "Quarterly lubrication", equipmentId: press.id, type: "PREVENTIVE", stage: "IN_PROGRESS" },
+    ],
+  })
+
+  // Quality checks.
+  await prisma.qualityCheck.createMany({
+    data: [
+      { title: "Incoming inspection", productId: comp1.id, status: "PASS", note: "Batch within tolerance." },
+      { title: "Final assembly check", productId: finished.id, status: "PENDING" },
+    ],
+  })
+
+  // Repair order.
+  const customer = await prisma.customer.findFirst()
+  const ro1 = await nextSequence("repairOrder", "RO")
+  await prisma.repairOrder.create({
+    data: {
+      repairNumber: ro1,
+      productId: finished.id,
+      customerId: customer?.id ?? null,
+      description: "Unit returned under warranty — intermittent power fault.",
+      status: "CONFIRMED",
+    },
+  })
+
+  console.log("Seeded supply-chain demo data: BOM, MOs, equipment, maintenance, quality, repair.")
 }
 
 /** Idempotent payroll demo — guarded on any existing payslip. Sets employee
@@ -175,6 +259,8 @@ async function ensureCounters() {
     { key: "purchaseOrder", count: () => prisma.purchaseOrder.count() },
     { key: "journalEntry", count: () => prisma.journalEntry.count() },
     { key: "payment", count: () => prisma.payment.count() },
+    { key: "manufacturingOrder", count: () => prisma.manufacturingOrder.count() },
+    { key: "repairOrder", count: () => prisma.repairOrder.count() },
   ]
   for (const spec of specs) {
     const value = await spec.count()

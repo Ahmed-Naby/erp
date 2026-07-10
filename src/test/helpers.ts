@@ -31,7 +31,7 @@ export async function resetDb() {
   }
 
   // Document-number counters start fresh for each test file.
-  for (const key of ["salesOrder", "invoice", "purchaseOrder", "journalEntry", "payment"]) {
+  for (const key of ["salesOrder", "invoice", "purchaseOrder", "journalEntry", "payment", "manufacturingOrder", "repairOrder"]) {
     await prisma.counter.create({ data: { key, value: 0 } })
   }
 }

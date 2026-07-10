@@ -1,17 +1,20 @@
 import {
   Calculator,
   Contact,
+  Factory,
   LayoutDashboard,
   type LucideIcon,
   Package,
   Receipt,
   Settings,
+  ShieldCheck,
   ShoppingBag,
   ShoppingCart,
   Target,
   UserPlus,
   Users,
   Wallet,
+  Wrench,
 } from "lucide-react"
 
 export type NavItem = {
@@ -65,6 +68,36 @@ export const navGroups: NavGroup[] = [
       { label: "nav.suppliers", href: "/purchasing/suppliers" },
       { label: "nav.purchaseOrders", href: "/purchasing/orders" },
     ],
+  },
+  {
+    label: "nav.manufacturing",
+    icon: Factory,
+    color: "bg-sky-100 text-sky-600 dark:bg-sky-500/20 dark:text-sky-300",
+    items: [
+      { label: "nav.manufacturingOrders", href: "/manufacturing/orders" },
+      { label: "nav.boms", href: "/manufacturing/boms" },
+    ],
+  },
+  {
+    label: "nav.maintenance",
+    icon: Wrench,
+    color: "bg-yellow-100 text-yellow-600 dark:bg-yellow-500/20 dark:text-yellow-300",
+    items: [
+      { label: "nav.maintenanceRequests", href: "/maintenance/requests" },
+      { label: "nav.equipment", href: "/maintenance/equipment" },
+    ],
+  },
+  {
+    label: "nav.quality",
+    icon: ShieldCheck,
+    color: "bg-green-100 text-green-600 dark:bg-green-500/20 dark:text-green-300",
+    items: [{ label: "nav.qualityChecks", href: "/quality" }],
+  },
+  {
+    label: "nav.repair",
+    icon: Wrench,
+    color: "bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-300",
+    items: [{ label: "nav.repairOrders", href: "/repair" }],
   },
   {
     label: "nav.crm",

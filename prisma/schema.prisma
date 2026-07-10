@@ -59,6 +59,7 @@ model Warehouse {
   stockMovements StockMovement[]
   salesOrders    SalesOrder[]
   purchaseOrders PurchaseOrder[]
+  manufacturingOrders ManufacturingOrder[]
   createdAt      DateTime        @default(now())
 }
 
@@ -78,6 +79,11 @@ model Product {
   stockMovements StockMovement[]
   salesOrderLines SalesOrderLine[]
   purchaseOrderLines PurchaseOrderLine[]
+  boms               Bom[]
+  bomLines           BomLine[]
+  manufacturingOrders ManufacturingOrder[]
+  qualityChecks      QualityCheck[]
+  repairOrders       RepairOrder[]
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 }
@@ -122,6 +128,7 @@ model Customer {
   salesOrders   SalesOrder[]
   invoices      Invoice[]
   opportunities Opportunity[]
+  repairOrders  RepairOrder[]
 }
 
 // status is a String ("DRAFT" | "CONFIRMED" | "INVOICED" | "CANCELLED") for
@@ -312,6 +319,7 @@ model Employee {
   expenses    Expense[]
   appraisals  Appraisal[]
   payslips    Payslip[]
+  equipment   Equipment[]
 }
 
 // period: "YYYY-MM" · status: DRAFT | CONFIRMED | PAID (String, per SQLite legacy).
@@ -431,4 +439,101 @@ model Opportunity {
   updatedAt       DateTime  @updatedAt
 
   @@index([stage])
+}
+
+// ── Manufacturing ─────────────────────────────────────────────
+model Bom {
+  id        String    @id @default(cuid())
+  productId String
+  product   Product   @relation(fields: [productId], references: [id])
+  quantity  Float     @default(1)
+  createdAt DateTime  @default(now())
+  lines     BomLine[]
+  manufacturingOrders ManufacturingOrder[]
+}
+
+model BomLine {
+  id        String  @id @default(cuid())
+  bomId     String
+  bom       Bom     @relation(fields: [bomId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Float
+}
+
+// status: DRAFT | CONFIRMED | DONE | CANCELLED
+model ManufacturingOrder {
+  id          String    @id @default(cuid())
+  moNumber    String    @unique
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id])
+  quantity    Float     @default(1)
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+  bomId       String?
+  bom         Bom?      @relation(fields: [bomId], references: [id])
+  status      String    @default("DRAFT")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([status])
+}
+
+// ── Maintenance ───────────────────────────────────────────────
+model Equipment {
+  id           String               @id @default(cuid())
+  name         String
+  category     String?
+  serialNumber String?
+  assignedToId String?
+  assignedTo   Employee?            @relation(fields: [assignedToId], references: [id])
+  createdAt    DateTime             @default(now())
+  requests     MaintenanceRequest[]
+}
+
+// type: CORRECTIVE | PREVENTIVE · stage: NEW | IN_PROGRESS | DONE | CANCELLED
+model MaintenanceRequest {
+  id          String     @id @default(cuid())
+  title       String
+  equipmentId String?
+  equipment   Equipment? @relation(fields: [equipmentId], references: [id])
+  type        String     @default("CORRECTIVE")
+  description String?
+  stage       String     @default("NEW")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([stage])
+}
+
+// ── Quality ───────────────────────────────────────────────────
+// status: PENDING | PASS | FAIL
+model QualityCheck {
+  id        String   @id @default(cuid())
+  title     String
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id])
+  note      String?
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+}
+
+// ── Repair ────────────────────────────────────────────────────
+// status: DRAFT | CONFIRMED | REPAIRED | DONE | CANCELLED
+model RepairOrder {
+  id           String    @id @default(cuid())
+  repairNumber String    @unique
+  productId    String
+  product      Product   @relation(fields: [productId], references: [id])
+  customerId   String?
+  customer     Customer? @relation(fields: [customerId], references: [id])
+  description  String?
+  status       String    @default("DRAFT")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([status])
 }
